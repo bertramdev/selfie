@@ -14,10 +14,8 @@ class ContentTypeConstraint extends AbstractConstraint {
 
 	protected void processValidate(java.lang.Object target, java.lang.Object propertyValue, org.springframework.validation.Errors errors) {
 		def contentType = propertyValue.contentType
-		println "Validation of ContentType ${contentType}"
 		if(constraintParameter instanceof List) {
 			if(!constraintParameter.contains(contentType)) {
-				println "Rejecting Content Type ${propertyValue.contentType}"
 				rejectValue target, errors, "default.invalid.${name}.message", "${name}.invalid", [constraintPropertyName, constraintOwningClass, contentType] as Object[]
 			}
 		} else if (constraintParameter != contentType) {

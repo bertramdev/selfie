@@ -43,7 +43,7 @@ grails.project.dependency.resolution = {
     plugins {
 
 
-        runtime ":karman:0.5.2"
+        runtime ":karman:0.5.2.1"
 
         if(System.getProperty('plugin.mode') != 'local') {
             runtime(':hibernate:3.6.10.16') {

@@ -1,6 +1,8 @@
 package com.bertramlabs.plugins.selfie
 import grails.util.Holders
 import com.bertramlabs.plugins.karman.*
+import grails.util.GrailsNameUtils
+
 
 class Attachment {
 	String fileName
@@ -12,6 +14,7 @@ class Attachment {
 	String propertyName
 	String domainName
 	def options =[:]
+	def parentEntity
 
 	InputStream fileStream
 
@@ -19,7 +22,8 @@ class Attachment {
 		def typeFileName = fileNameForType(typeName)
 		def fileOptions = getStorageOptions(propertyName,domainName) + (options?.storage ?: [:])
 		println "FileOptions ${fileOptions}"
-		def url = (fileOptions.url ?: '/') + typeFileName
+		def url = evaluatedPath((fileOptions.url ?: '/'),typeName) + typeFileName
+		println "Returning URL ${url}"
 		return url
 	}
 
@@ -27,28 +31,27 @@ class Attachment {
 		fileStream = is
 	}
 
-	public save(options) {
-		def storageOptions = getStorageOptions(options.domain,options.name) ?: [:]
-		storageOptions += options.storage
+	public save() {
+		def storageOptions = getStorageOptions(propertyName,domainName) + (options?.storage ?: [:])
 		def bucket = storageOptions.bucket ?: '.'
-
+		def path = storageOptions.path ?: ''
 		println "initializing a Provider ${storageOptions.providerOptions.clone()}"
 		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
 
 		// First lets upload the original
 		if(fileStream && fileName) {
-			provider[bucket][fileNameForType('original')] = fileStream.bytes
+			provider[bucket][ evaluatedPath(path,'original') + fileNameForType('original')] = fileStream.bytes
 		}
 	}
 
 	public delete() {
 		def storageOptions = getStorageOptions(propertyName,domainName) + (options?.storage ?: [:])
-
+		def path = storageOptions.path ?: ''
 		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
 		def bucket = storageOptions.bucket ?: '.'
 
 		types.each { type ->
-			def cloudFile = provider[bucket][fileNameForType(type)]
+			def cloudFile = provider[bucket][evaluatedPath(path,type) + fileNameForType(type)]
 			if(cloudFile.exists()) {
 				cloudFile.delete()
 			}
@@ -75,6 +78,10 @@ class Attachment {
 		def types = ['original']
 		types += options?.types?.collect { it.key} ?: []
 
+	}
+
+	protected String evaluatedPath(String input,type='original') {
+		input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.class)}").replace(":id","${parentEntity.id}").replace(":type","${type}")
 	}
 
 
