@@ -47,6 +47,7 @@ class AttachmentUserType implements CompositeUserType {
 	*/
 	public void setPropertyValue(Object component, int property, Object value)
 	throws HibernateException {
+		println "Setting Property Values ${property} ${value}"
 		if(value!=null){
 			if (property ==0){
 				component.fileName = (String)value;
@@ -85,7 +86,7 @@ class AttachmentUserType implements CompositeUserType {
 		String fileName    = rs.getString(names[0])
 		Long fileSize      = rs.getLong(names[1])
 		String contentType = rs.getString(names[2])
-
+		println "Executing a null Safe Get ${fileName} ${names[0]}"
 		if(fileName != null) {
 			return new Attachment(fileName: fileName, fileSize: fileSize, contentType: contentType)
 		} else {
@@ -100,13 +101,14 @@ class AttachmentUserType implements CompositeUserType {
 	SessionImplementor session) throws HibernateException, SQLException {
 		if(value !=null){
 			st.setString(index,((Attachment)value).fileName);
-			st.setLong(index,((Attachment)value).fileSize);
+			st.setLong(index+1,((Attachment)value).fileSize);
 			st.setString(index+2,((Attachment)value).contentType);
 		}else{
 			st.setObject(index,null);
 			st.setObject(index +1, null);
 			st.setObject(index +2, null);
 		}
+		// (Attachment)value.save()
 	}
 
 	/**
@@ -115,10 +117,14 @@ class AttachmentUserType implements CompositeUserType {
 	public Object deepCopy(Object value) throws HibernateException {
 		Attachment returnVal = new Attachment()
 		Attachment currVal = (Attachment)value
+		if(currVal) {
+			returnVal.fileName = currVal.fileName ? new String(currVal.fileName) : null
+			returnVal.fileSize = currVal.fileSize ? new Long(currVal.fileSize) : null
+			returnVal.contentType = currVal.contentType ? new String(currVal.contentType) : null
+		} else {
+			return null
+		}
 
-		returnVal.fileName = new String(currVal.fileName)
-		returnVal.fileSize = currVal.fileSize ? new Long(currVal.fileSize) : null
-		returnVal.contentType = currVal.contentType ? new String(currVal.contentType) : null
 		return returnVal;
 	}
 

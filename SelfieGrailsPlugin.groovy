@@ -25,15 +25,21 @@ class SelfieGrailsPlugin {
     }
 
     def doWithSpring = {
-        // TODO Implement runtime spring config (optional)
+
+
+        attachmentConverter com.bertramlabs.plugins.selfie.AttachmentValueConverter
     }
 
     def doWithDynamicMethods = { ctx ->
         // TODO Implement registering dynamic methods to classes (optional)
+        org.codehaus.groovy.grails.validation.ConstrainedProperty.registerNewConstraint('contentType',com.bertramlabs.plugins.selfie.ContentTypeConstraint.class)
+        org.codehaus.groovy.grails.validation.ConstrainedProperty.registerNewConstraint('fileSize',com.bertramlabs.plugins.selfie.FileSizeConstraint.class)
     }
 
     def doWithApplicationContext = { ctx ->
-        // TODO Implement post initialization spring config (optional)
+        application.mainContext.eventTriggeringInterceptor.datastores.each { k, datastore ->
+            applicationContext.addApplicationListener new com.bertramlabs.plugins.selfie.PersistenceEventListener(datastore)
+        }
     }
 
     def onChange = { event ->
