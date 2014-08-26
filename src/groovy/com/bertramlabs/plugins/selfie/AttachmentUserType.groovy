@@ -47,7 +47,6 @@ class AttachmentUserType implements CompositeUserType {
 	*/
 	public void setPropertyValue(Object component, int property, Object value)
 	throws HibernateException {
-		println "Setting Property Values ${property} ${value}"
 		if(value!=null){
 			if (property ==0){
 				component.fileName = (String)value;
@@ -86,7 +85,6 @@ class AttachmentUserType implements CompositeUserType {
 		String fileName    = rs.getString(names[0])
 		Long fileSize      = rs.getLong(names[1])
 		String contentType = rs.getString(names[2])
-		println "Executing a null Safe Get ${fileName} ${names[0]}"
 		if(fileName != null) {
 			return new Attachment(fileName: fileName, fileSize: fileSize, contentType: contentType)
 		} else {

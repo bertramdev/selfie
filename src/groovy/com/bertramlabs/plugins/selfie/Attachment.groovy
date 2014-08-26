@@ -18,12 +18,21 @@ class Attachment {
 
 	InputStream fileStream
 
-	public url(typeName) {
+	public url(typeName, expiration=null) {
+		def storageOptions = getStorageOptions(propertyName,domainName)
+		def path = storageOptions.path ?: ''
+		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
+		def bucket = storageOptions.bucket ?: '.'
 		def typeFileName = fileNameForType(typeName)
-		def fileOptions = getStorageOptions(propertyName,domainName) + (options?.storage ?: [:])
-		println "FileOptions ${fileOptions}"
-		def url = evaluatedPath((fileOptions.url ?: '/'),typeName) + typeFileName
-		println "Returning URL ${url}"
+
+		def cloudFile = provider[bucket][evaluatedPath(path,typeName) + typeFileName]
+		def url
+		if(!storageOptions.url) {
+			url = cloudFile.getURL(expiration).toString()
+		} else {
+			url = evaluatedPath((storageOptions.url ?: '/'),typeName) + typeFileName
+		}
+
 		return url
 	}
 
@@ -32,10 +41,9 @@ class Attachment {
 	}
 
 	public save() {
-		def storageOptions = getStorageOptions(propertyName,domainName) + (options?.storage ?: [:])
+		def storageOptions = getStorageOptions(propertyName,domainName)
 		def bucket = storageOptions.bucket ?: '.'
 		def path = storageOptions.path ?: ''
-		println "initializing a Provider ${storageOptions.providerOptions.clone()}"
 		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
 
 		// First lets upload the original
@@ -45,7 +53,7 @@ class Attachment {
 	}
 
 	public delete() {
-		def storageOptions = getStorageOptions(propertyName,domainName) + (options?.storage ?: [:])
+		def storageOptions = getStorageOptions(propertyName,domainName)
 		def path = storageOptions.path ?: ''
 		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
 		def bucket = storageOptions.bucket ?: '.'
@@ -81,7 +89,7 @@ class Attachment {
 	}
 
 	protected String evaluatedPath(String input,type='original') {
-		input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.class)}").replace(":id","${parentEntity.id}").replace(":type","${type}")
+		input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.class)}").replace(":id","${parentEntity.id}").replace(":type","${type}").replace(":propertyName","${propertyName}")
 	}
 
 
@@ -94,6 +102,14 @@ class Attachment {
 	}
 
 	protected getStorageOptions(name, propertyName) {
-		return config?.domain?."${name}"?."${propertyName}"?.storage ?: config?.domain?."${name}"?.storage  ?: config?.storage
+		def options = ((config?.domain?."${name}"?."${propertyName}"?.storage ?: config?.domain?."${name}"?.storage  ?: config?.storage ?: [:]) + (options?.storage ?: [:])).clone()
+		if(options.providerOptions && !options.providerOptions.containsKey('defaultFileACL')) {
+          options.providerOptions.defaultFileACL = com.bertramlabs.plugins.karman.CloudFileACL.PublicRead
+		}
+
+		if(!options.containsKey('path')) {
+			options.path = 'uploads/:class/:id/:propertyName/'
+		}
+		return options
 	}
 }
