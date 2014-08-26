@@ -21,9 +21,15 @@ Example DSL:
 
 ```groovy
 class Book {
-
-  @AttachmentSizes([thumbnail: ‘50x50#’])
+  String name
   Attachment photo
+
+
+  static attachmentOptions = [
+    photo: [
+      types: [thumb: "50x50#"]
+    ]
+  ]
 
   static mapping = {
     photo type: AttachmentUserType, {
@@ -45,12 +51,9 @@ class Book {
 Things to be Done
 ------------------
 
-* Develop Hibernate 3 and Hibernate 4 User Types
+* DevelopHibernate 4 User Types
 * Add Image Resize Logic via plugin
-* Provide Configuration DSL for the Karman Storage Provider
 * Support Secure Files
-* Create Bindings for seamless multipart upload
-* Add Custom Constraint Validators, such as contentType.
 * Provide Convenience taglibs
 * Support Attachment Size closure for dynamic sizes based on other properties
 * Provide method to rebuild thumbnails after sizes have changed
