@@ -43,8 +43,8 @@ class Book {
 
   static mapping = {
     photo type: AttachmentUserType, {
-      column name: “photo_file_name”
-      column name: “photo_file_size”
+      column name: "photo_file_name"
+      column name: "photo_file_size"
 	  column name: "photo_content_type"
     }
   }
