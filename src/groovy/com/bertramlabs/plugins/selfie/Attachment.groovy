@@ -3,6 +3,7 @@ import grails.util.Holders
 import com.bertramlabs.plugins.karman.*
 import grails.util.GrailsNameUtils
 
+import com.bertramlabs.plugins.selfie.processors.ImageResizer
 
 class Attachment {
 	String fileName
@@ -15,18 +16,16 @@ class Attachment {
 	String domainName
 	def options =[:]
 	def parentEntity
+	def processors = [ImageResizer]
 
 	InputStream fileStream
 
 	public url(typeName, expiration=null) {
 		def storageOptions = getStorageOptions(propertyName,domainName)
-		def path = storageOptions.path ?: ''
-		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
-		def bucket = storageOptions.bucket ?: '.'
 		def typeFileName = fileNameForType(typeName)
-
-		def cloudFile = provider[bucket][evaluatedPath(path,typeName) + typeFileName]
+		def cloudFile = this.getCloudFile(typeName)
 		def url
+
 		if(!storageOptions.url) {
 			url = cloudFile.getURL(expiration).toString()
 		} else {
@@ -40,6 +39,28 @@ class Attachment {
 		fileStream = is
 	}
 
+ 	def getInputStream() {
+		return cloudFile.inputStream
+
+		if(fileStream) {
+			return fileStream
+		} else {
+			return cloudFile.inputStream
+		}
+	}
+
+ 	def getCloudFile(typeName=null) {
+			if(!typeName) {
+				typeName = 'original'
+			}
+			def storageOptions = getStorageOptions(propertyName,domainName)
+			def bucket = storageOptions.bucket ?: '.'
+			def path = storageOptions.path ?: ''
+			def provider = StorageProvider.create(storageOptions.providerOptions.clone())
+			def typeFileName = fileNameForType(typeName)
+			return provider[bucket][evaluatedPath(path,typeName) + typeFileName]
+	}
+
 	public save() {
 		def storageOptions = getStorageOptions(propertyName,domainName)
 		def bucket = storageOptions.bucket ?: '.'
@@ -49,7 +70,16 @@ class Attachment {
 		// First lets upload the original
 		if(fileStream && fileName) {
 			provider[bucket][ evaluatedPath(path,'original') + fileNameForType('original')] = fileStream.bytes
+			reprocessStyles()
 		}
+
+
+	}
+
+	def saveProcessedStyle(typeName, bytes) {
+		def cloudFile = getCloudFile(typeName)
+		cloudFile.bytes = bytes
+		cloudFile.save()
 	}
 
 	public delete() {
@@ -58,7 +88,7 @@ class Attachment {
 		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
 		def bucket = storageOptions.bucket ?: '.'
 
-		types.each { type ->
+		styles.each { type ->
 			def cloudFile = provider[bucket][evaluatedPath(path,type) + fileNameForType(type)]
 			if(cloudFile.exists()) {
 				cloudFile.delete()
@@ -82,18 +112,22 @@ class Attachment {
 		return "${fileNameWithOutExt}_${typeName}.${extension}"
 	}
 
-	public getTypes() {
+	public getStyles() {
 		def types = ['original']
-		types += options?.types?.collect { it.key} ?: []
-
+		types += options?.styles?.collect { it.key} ?: []
+		return types
 	}
 
 	protected String evaluatedPath(String input,type='original') {
-		input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.class)}").replace(":id","${parentEntity.id}").replace(":type","${type}").replace(":propertyName","${propertyName}")
+		input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.class)}").replace(":id","${parentEntity.id}").replace(":type","${type}").replace(":style","${type}").replace(":propertyName","${propertyName}")
 	}
 
 
-	public rebuildThumbs() {
+	public reprocessStyles() {
+		processors.each { processorClass ->
+			def processor = processorClass.newInstance(attachment: this)
+			processor.process()
+		}
 		// TODO: Grab Original File and Start Building out Thumbnails
 	}
 

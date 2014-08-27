@@ -25,14 +25,15 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 				break
 				case EventType.PostInsert:
 				// println "POST INSERT ${event.entityObject}"
-				postSave(event,attachments)
+				preSave(event,attachments)
 				break
 				case EventType.PreUpdate:
 				// println "PRE UPDATE ${event.entityObject}"
+				preSave(event, attachments)
 				break;
 				case EventType.PostUpdate:
 				// println "POST UPDATE ${event.entityObject}"
-				postSave(event,attachments)
+
 				break;
 				case EventType.PreDelete:
 				// println "PRE DELETE ${event.entityObject}"
@@ -73,15 +74,28 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 		}
 	}
 
-	public void postSave(final AbstractPersistenceEvent event, attachments) {
+	public void preSave(final AbstractPersistenceEvent event, attachments) {
 		applyPropertyOptions(event,attachments)
 		attachments.each { attachmentProp ->
+			if(event.entityObject.isDirty(attachmentProp.name)) {
+				def attachmentOptions = event.entityObject.attachmentOptions?."${attachmentProp.name}"
+				def originalAttachment = event.entityObject.getPersistentValue(attachmentProp.name)
+				if(originalAttachment) {
+					originalAttachment.domainName = GrailsNameUtils.getLogicalName(event.entityObject.class,null)
+					originalAttachment.propertyName = attachmentProp.name
+					originalAttachment.options = attachmentOptions
+					originalAttachment.parentEntity = event.entityObject
+					originalAttachment.delete()
+				}
+			}
 			def attachment = event.entityObject."${attachmentProp.name}"
 			if(attachment) {
 				attachment.save()
 			}
 		}
 	}
+
+
 
  	def attachmentsForEvent(final AbstractPersistenceEvent event) {
 		if(!event?.entityObject) {
