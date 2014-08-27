@@ -15,7 +15,6 @@ class ImageResizer {
 		}
 		def options = attachment.options
 		def styleOptions = attachment.options.styles
-		println "Processing Styles"
 		def image = ImageIO.read(attachment.inputStream)
 		styleOptions.each { style ->
 
