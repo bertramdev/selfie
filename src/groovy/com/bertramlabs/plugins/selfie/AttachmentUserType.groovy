@@ -1,153 +1,97 @@
 package com.bertramlabs.plugins.selfie
 
 // import org.hibernate.usertype.UserType
-import org.hibernate.usertype.CompositeUserType
 import java.sql.PreparedStatement
-import org.hibernate.HibernateException
 import java.sql.ResultSet
 import java.sql.SQLException
-import org.hibernate.type.Type;
-import org.hibernate.engine.SessionImplementor;
-import org.springframework.util.ObjectUtils;
+import java.sql.Types
+
+import org.hibernate.HibernateException
+import org.hibernate.engine.SessionImplementor
+import org.hibernate.type.StandardBasicTypes
+import org.hibernate.type.Type
+import org.springframework.util.ObjectUtils
+import org.hibernate.usertype.CompositeUserType
 
 class AttachmentUserType implements CompositeUserType {
-	public String[] getPropertyNames() {
-		return ["fileName","fileSize","contentType"] as String[]
-	}
 
-	/**
-	* This refers to java object property types
-	*/
-	public Type[] getPropertyTypes() {
-		return [org.hibernate.type.StandardBasicTypes.STRING, org.hibernate.type.StandardBasicTypes.LONG, org.hibernate.type.StandardBasicTypes.STRING] as Type
-	}
+	final String[] propertyNames = ["fileName","fileSize","contentType"]
 
-	/**
-	* This method fetches the property from the user type depending upon
-	* the index.It should follow getPropertyNames()s
-	*/
-	public Object getPropertyValue(Object component, int property)
-	throws HibernateException {
-		if(component ==null)
-		return null;
-		else{
-			if(property==0 )
-			return component.fileName
-			else if(property==1)
-			return component.fileSize
-			else if(property==2)
-			return component.contentType
+	final Type[] propertyTypes = [StandardBasicTypes.STRING, StandardBasicTypes.LONG, StandardBasicTypes.STRING]
+
+	def getPropertyValue(component, int property) {
+		if (component == null) {
+			return null
 		}
 
-		return null;
-	}
-
-	/**
-	* This method sets the individual property in the custom user type
-	*/
-	public void setPropertyValue(Object component, int property, Object value)
-	throws HibernateException {
-		if(value!=null){
-			if (property ==0){
-				component.fileName = (String)value;
-			}else if(property ==1) {
-				component.fileSize = (Long)value;
-			} else if(property == 2) {
-				component.contentType = (String)value;
-			}
+		switch (property) {
+			case 0: return component.fileName
+			case 1: return component.fileSize
+			case 2: return component.contentType
 		}
 	}
 
-	/**
-	* This method returns the custom user type class
-	*/
-	public Class returnedClass() {
-		return Attachment.class;
+	void setPropertyValue(component, int property, value) {
+		if (value == null) {
+			return
+		}
+
+		switch (property) {
+			case 0: component.fileName = value; break
+			case 1: component.fileSize = value; break
+			case 2: component.contentType = value; break
+		}
 	}
 
-	public boolean equals(Object x, Object y) throws HibernateException {
-		return ObjectUtils.nullSafeEquals(x, y);
+	Class returnedClass() { Attachment }
+
+	boolean equals(x, y) {
+		ObjectUtils.nullSafeEquals(x, y)
 	}
 
-	public int hashCode(Object x) throws HibernateException {
-		if (x!=null)
-		return x.hashCode();
-		else
-		return 0;
+	int hashCode(Object x) {
+		x == null ? 0 : x.hashCode()
 	}
 
-	/**
-	* This method constructs the custom user type from the resultset
-	*/
-	public Object nullSafeGet(ResultSet rs, String[] names,
-	SessionImplementor session, Object owner)
-	throws HibernateException, SQLException {
+	def nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, owner) throws SQLException {
 		String fileName    = rs.getString(names[0])
 		Long fileSize      = rs.getLong(names[1])
 		String contentType = rs.getString(names[2])
-		if(fileName != null) {
-			return new Attachment(fileName: fileName, fileSize: fileSize, contentType: contentType)
-		} else {
-			return null
-		}
+		fileName == null ? null : new Attachment(fileName: fileName, fileSize: fileSize, contentType: contentType)
 	}
 
-	/**
-	* This method sets the value from the user type into prepared statement
-	*/
-	public void nullSafeSet(PreparedStatement st, Object value, int index,
-	SessionImplementor session) throws HibernateException, SQLException {
-		if(value !=null){
-			st.setString(index,((Attachment)value).fileName);
-			st.setLong(index+1,((Attachment)value).fileSize);
-			st.setString(index+2,((Attachment)value).contentType);
-		}else{
-			st.setObject(index,null);
-			st.setObject(index +1, null);
-			st.setObject(index +2, null);
+	void nullSafeSet(PreparedStatement st, value, int index, SessionImplementor session) throws SQLException {
+		if (value == null) {
+			st.setNull(index, Types.VARCHAR)
+			st.setNull(index, Types.BIGINT)
+			st.setNull(index, Types.VARCHAR)
+		}
+		else {
+			st.setString(index, value.fileName)
+			st.setLong(index + 1, value.fileSize)
+			st.setString(index + 2, value.contentType)
 		}
 		// (Attachment)value.save()
 	}
 
-	/**
-	* Deep copy
-	*/
-	public Object deepCopy(Object value) throws HibernateException {
-		Attachment returnVal = new Attachment()
-		Attachment currVal = (Attachment)value
-		if(currVal) {
-			returnVal.fileName = currVal.fileName ? new String(currVal.fileName) : null
-			returnVal.fileSize = currVal.fileSize ? new Long(currVal.fileSize) : null
-			returnVal.contentType = currVal.contentType ? new String(currVal.contentType) : null
-		} else {
-			return null
+	def deepCopy(value) {
+		if (value) {
+			return new Attachment(fileName: value.fileName, fileSize: value.fileSize, contentType: value.contentType)
 		}
-
-		return returnVal;
 	}
 
-	public boolean isMutable() {
-		return false;
+	boolean isMutable() { false }
+
+	Serializable disassemble(value, SessionImplementor session) {
+		def deepCopy = deepCopy(value)
+		deepCopy instanceof Serializable ? deepCopy : null
 	}
 
-	public Serializable disassemble(Object value, SessionImplementor session)
-	throws HibernateException {
-		Object  deepCopy=deepCopy(value);
-
-		if(!(deepCopy instanceof Serializable))
-		return (Serializable)deepCopy;
-
-		return null;
+	def assemble(Serializable cached, SessionImplementor session, owner) {
+		deepCopy(cached)
 	}
 
-	public Object assemble(Serializable cached, SessionImplementor session,
-	Object owner) throws HibernateException {
-		return deepCopy(cached);
+	def replace(original, target, SessionImplementor session, owner) {
+		deepCopy(original)
 	}
-
-	public Object replace(Object original, Object target,
-	SessionImplementor session, Object owner) throws HibernateException {
-		return deepCopy(original);
-	}
-
 }
