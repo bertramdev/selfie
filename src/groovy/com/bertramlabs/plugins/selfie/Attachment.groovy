@@ -41,7 +41,7 @@ class Attachment {
 	}
 
  	def getInputStream() {
-		fileStream ?: cloudFile.inputStream
+		cloudFile.inputStream
 	}
 
  	def getCloudFile(typeName='original') {
