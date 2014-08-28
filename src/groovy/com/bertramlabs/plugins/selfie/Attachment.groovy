@@ -1,8 +1,9 @@
 package com.bertramlabs.plugins.selfie
-import grails.util.Holders
-import com.bertramlabs.plugins.karman.*
-import grails.util.GrailsNameUtils
 
+import grails.util.GrailsNameUtils
+import grails.util.Holders
+
+import com.bertramlabs.plugins.karman.*
 import com.bertramlabs.plugins.selfie.processors.ImageResizer
 
 class Attachment {
@@ -20,10 +21,10 @@ class Attachment {
 
 	InputStream fileStream
 
-	public url(typeName, expiration=null) {
+	def url(typeName, expiration=null) {
 		def storageOptions = getStorageOptions(propertyName,domainName)
 		def typeFileName = fileNameForType(typeName)
-		def cloudFile = this.getCloudFile(typeName)
+		def cloudFile = getCloudFile(typeName)
 		def url
 
 		if(!storageOptions.url) {
@@ -32,36 +33,27 @@ class Attachment {
 			url = evaluatedPath((storageOptions.url ?: '/'),typeName) + typeFileName
 		}
 
-		return url
+		url
 	}
 
-	public setInputStream(is) {
+	void setInputStream(is) {
 		fileStream = is
 	}
 
  	def getInputStream() {
-		return cloudFile.inputStream
-
-		if(fileStream) {
-			return fileStream
-		} else {
-			return cloudFile.inputStream
-		}
+		fileStream ?: cloudFile.inputStream
 	}
 
- 	def getCloudFile(typeName=null) {
-			if(!typeName) {
-				typeName = 'original'
-			}
-			def storageOptions = getStorageOptions(propertyName,domainName)
-			def bucket = storageOptions.bucket ?: '.'
-			def path = storageOptions.path ?: ''
-			def provider = StorageProvider.create(storageOptions.providerOptions.clone())
-			def typeFileName = fileNameForType(typeName)
-			return provider[bucket][evaluatedPath(path,typeName) + typeFileName]
+ 	def getCloudFile(typeName='original') {
+		def storageOptions = getStorageOptions(propertyName,domainName)
+		def bucket = storageOptions.bucket ?: '.'
+		def path = storageOptions.path ?: ''
+		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
+		def typeFileName = fileNameForType(typeName)
+		return provider[bucket][evaluatedPath(path,typeName) + typeFileName]
 	}
 
-	public save() {
+	void save() {
 		def storageOptions = getStorageOptions(propertyName,domainName)
 		def bucket = storageOptions.bucket ?: '.'
 		def path = storageOptions.path ?: ''
@@ -82,13 +74,13 @@ class Attachment {
 		cloudFile.save()
 	}
 
-	public delete() {
+	void delete() {
 		def storageOptions = getStorageOptions(propertyName,domainName)
 		def path = storageOptions.path ?: ''
 		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
 		def bucket = storageOptions.bucket ?: '.'
 
-		styles.each { type ->
+		for (type in styles) {
 			def cloudFile = provider[bucket][evaluatedPath(path,type) + fileNameForType(type)]
 			if(cloudFile.exists()) {
 				cloudFile.delete()
@@ -96,37 +88,34 @@ class Attachment {
 		}
 	}
 
-	public generateBaseFileName() {
-		return fileName ?: originalFilename
+	String generateBaseFileName() {
+		fileName ?: originalFilename
 	}
 
-	public void setOriginalFilename(String name) {
+	void setOriginalFilename(String name) {
 		originalFilename = name
 		fileName = fileName ?: originalFilename
 	}
 
-
-	public fileNameForType(typeName) {
-		def fileNameWithOutExt = fileName.replaceFirst(/[.][^.]+$/, "");
+	String fileNameForType(typeName) {
+		def fileNameWithOutExt = fileName.replaceFirst(/[.][^.]+$/, "")
 		def extension = (fileName =~ /[.]([^.]+)$/)[0][1]
-		return "${fileNameWithOutExt}_${typeName}.${extension}"
+		"${fileNameWithOutExt}_${typeName}.${extension}"
 	}
 
-	public getStyles() {
+	def getStyles() {
 		def types = ['original']
-		types += options?.styles?.collect { it.key} ?: []
-		return types
+		types.addAll options?.styles?.collect { it.key} ?: []
+		types
 	}
 
 	protected String evaluatedPath(String input,type='original') {
-		input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.class)}").replace(":id","${parentEntity.id}").replace(":type","${type}").replace(":style","${type}").replace(":propertyName","${propertyName}")
+		input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.getClass())}").replace(":id","${parentEntity.id}").replace(":type","${type}").replace(":style","${type}").replace(":propertyName","${propertyName}")
 	}
 
-
-	public reprocessStyles() {
-		processors.each { processorClass ->
-			def processor = processorClass.newInstance(attachment: this)
-			processor.process()
+	void reprocessStyles() {
+		for (processorClass in processors) {
+			processorClass.newInstance(attachment: this).process()
 		}
 		// TODO: Grab Original File and Start Building out Thumbnails
 	}
@@ -144,6 +133,6 @@ class Attachment {
 		if(!options.containsKey('path')) {
 			options.path = 'uploads/:class/:id/:propertyName/'
 		}
-		return options
+		options
 	}
 }

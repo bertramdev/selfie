@@ -4,21 +4,21 @@ import com.bertramlabs.plugins.selfie.Attachment
 import javax.imageio.ImageIO
 import org.imgscalr.Scalr
 
-
 class ImageResizer {
+
+	private static final Map<String, String> CONTENT_TYPE_TO_NAME =
+		['image/jpeg': 'jpeg', 'image/png': 'png', 'image/bmp': 'bmp', 'image/gif': 'gif']
+
 	Attachment attachment
 
 	def process() {
 		def formatName = formatNameFromContentType(attachment.contentType)
-		if(!formatName) {
-			return;
+		if (!formatName) {
+			return
 		}
-		def options = attachment.options
 		def styleOptions = attachment.options.styles
 		def image = ImageIO.read(attachment.inputStream)
-		styleOptions.each { style ->
-
-
+		for (style in styleOptions) {
 			processStyle(style.key, [format: formatName] + style.value.clone(),image)
 		}
 	}
@@ -38,24 +38,13 @@ class ImageResizer {
 		} else if (options.mode == 'scale') {
 			outputImage = Scalr.resize(image, Scalr.Method.AUTOMATIC, Scalr.Mode.AUTOMATIC, options.width, options.height, Scalr.OP_ANTIALIAS)
 		}
-		def saveStream = new java.io.ByteArrayOutputStream()
+		def saveStream = new ByteArrayOutputStream()
 
 		ImageIO.write(outputImage, options.format,saveStream)
 		attachment.saveProcessedStyle(typeName,saveStream.toByteArray())
 	}
 
 	def formatNameFromContentType(contentType) {
-		switch(contentType) {
-			case 'image/jpeg':
-				return 'jpeg'
-			case 'image/png':
-				return 'png'
-			case 'image/bmp':
-				return 'bmp'
-			case 'image/gif':
-				return 'gif'
-		}
-		return null
+		CONTENT_TYPE_TO_NAME[contentType]
 	}
-
 }

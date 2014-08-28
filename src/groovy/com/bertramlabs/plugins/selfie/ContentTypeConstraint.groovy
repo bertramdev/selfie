@@ -1,21 +1,20 @@
 package com.bertramlabs.plugins.selfie
 
 import org.codehaus.groovy.grails.validation.AbstractConstraint
+import org.springframework.validation.Errors
 
 class ContentTypeConstraint extends AbstractConstraint {
 
-	public boolean supports(Class classObject) {
-			classObject == Attachment
+	boolean supports(Class classObject) {
+		classObject == Attachment
 	}
 
-	public String getName() {
-		return "contentType"
-	}
+	String getName() { "contentType" }
 
-	protected void processValidate(java.lang.Object target, java.lang.Object propertyValue, org.springframework.validation.Errors errors) {
+	protected void processValidate(target, propertyValue, Errors errors) {
 		def contentType = propertyValue.contentType
-		if(constraintParameter instanceof List) {
-			if(!constraintParameter.contains(contentType)) {
+		if (constraintParameter instanceof List) {
+			if (!constraintParameter.contains(contentType)) {
 				rejectValue target, errors, "default.invalid.${name}.message", "${name}.invalid", [constraintPropertyName, constraintOwningClass, contentType] as Object[]
 			}
 		} else if (constraintParameter != contentType) {
@@ -23,10 +22,6 @@ class ContentTypeConstraint extends AbstractConstraint {
 		}
 	}
 
-	protected boolean	skipBlankValues() {
-		return true
-	}
-	protected boolean	skipNullValues() {
-		return true
-	}
+	protected boolean	skipBlankValues() { true }
+	protected boolean	skipNullValues() { true }
 }

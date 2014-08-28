@@ -1,7 +1,9 @@
 import org.codehaus.groovy.grails.validation.ConstrainedProperty
-import com.bertramlabs.plugins.selfie.PersistenceEventListener
+
+import com.bertramlabs.plugins.selfie.AttachmentValueConverter
 import com.bertramlabs.plugins.selfie.ContentTypeConstraint
 import com.bertramlabs.plugins.selfie.FileSizeConstraint
+import com.bertramlabs.plugins.selfie.PersistenceEventListener
 
 class SelfieGrailsPlugin {
     def version         = "0.1.0"
@@ -20,12 +22,12 @@ class SelfieGrailsPlugin {
     ]
 
     def doWithSpring = {
-        attachmentConverter com.bertramlabs.plugins.selfie.AttachmentValueConverter
+        attachmentConverter AttachmentValueConverter
     }
 
     def doWithDynamicMethods = { ctx ->
-        ConstrainedProperty.registerNewConstraint('contentType', ContentTypeConstraint.class)
-        ConstrainedProperty.registerNewConstraint('fileSize', FileSizeConstraint.class)
+        ConstrainedProperty.registerNewConstraint('contentType', ContentTypeConstraint)
+        ConstrainedProperty.registerNewConstraint('fileSize', FileSizeConstraint)
     }
 
     def doWithApplicationContext = { ctx ->
