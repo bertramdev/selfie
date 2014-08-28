@@ -63,8 +63,8 @@ class AttachmentUserType implements CompositeUserType {
 	void nullSafeSet(PreparedStatement st, value, int index, SessionImplementor session) throws SQLException {
 		if (value == null) {
 			st.setNull(index, Types.VARCHAR)
-			st.setNull(index, Types.BIGINT)
-			st.setNull(index, Types.VARCHAR)
+			st.setNull(index + 1, Types.BIGINT)
+			st.setNull(index + 2, Types.VARCHAR)
 		}
 		else {
 			st.setString(index, value.fileName)

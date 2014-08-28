@@ -45,6 +45,9 @@ class Attachment {
 	}
 
  	def getCloudFile(typeName='original') {
+		if(!typeName) {
+			typeName = 'original'
+		}
 		def storageOptions = getStorageOptions(propertyName,domainName)
 		def bucket = storageOptions.bucket ?: '.'
 		def path = storageOptions.path ?: ''
