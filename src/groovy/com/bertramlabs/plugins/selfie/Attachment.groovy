@@ -36,6 +36,19 @@ class Attachment {
 		url
 	}
 
+	def getOptions() {
+		def evaluatedOptions = options.clone()
+		if(evaluatedOptions.styles && evaluatedOptions.styles instanceof Closure) {
+			evalutedOptions.styles = evaluatedOptions.styles.call(attachment)
+		}
+		evaluatedOptions?.styles?.each { style ->
+			if(style.value instanceof Closure) {
+				style.value = style.value.call(attachment)
+			}
+		}
+		return evaluatedOptions
+	}
+
 	void setInputStream(is) {
 		fileStream = is
 	}

@@ -92,7 +92,7 @@ class Book {
   static attachmentOptions = [
     photo: [
       styles: [
-        thumb: [width: 50, height: 50, mode: 'crop'],
+        thumb: [width: 50, height: 50, mode: 'fit'],
         medium: [width: 250, height: 250, mode: 'scale']
       ]
     ]
