@@ -142,6 +142,7 @@ class Attachment {
 	}
 
 	protected getStorageOptions(name, propertyName) {
+		println "Checking config for domain ${name} - Property ${propertyName}"
 		def options = ((config?.domain?."${name}"?."${propertyName}"?.storage ?: config?.domain?."${name}"?.storage  ?: config?.storage ?: [:]) + (options?.storage ?: [:])).clone()
 		if(options.providerOptions && !options.providerOptions.containsKey('defaultFileACL')) {
           options.providerOptions.defaultFileACL = com.bertramlabs.plugins.karman.CloudFileACL.PublicRead
