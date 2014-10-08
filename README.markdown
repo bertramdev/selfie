@@ -9,8 +9,6 @@ Selfie is a Grails Image / File Upload Plugin. Use Selfie to attach files to you
 * Content Type Validation
 * GORM Bindings / Hibernate User Types Support
 
-**NOTE: STILL IN EARLY DEVELOPMENT**
-
 Installation
 ------------
 
@@ -21,7 +19,7 @@ Add The Following to your `BuildConfig`:
     mavenRepo 'http://dl.bintray.com/karman/karman'
   }
   plugins {
-    compile ':selfie:0.1.0'
+    compile ':selfie:0.3.0'
   }
 ```
 
@@ -75,8 +73,7 @@ This will provide access to files within the `storage` folder via the `storage` 
 Usage
 -----
 
-Currently this plugin is in the works. The plan is to leverage GORM's support for hibernate custom user types
-to make an elegant DSL for uploading and attaching files to your domains.
+The plugin uses an embedded GORM domain class to provide an elegant DSL for uploading and attaching files to your domains. So make sure you define your `static embedded=[]` when using the Attachment class.
 
 Example DSL:
 
@@ -98,12 +95,10 @@ class Book {
     ]
   ]
 
+  static embedded = ['photo'] //required
+
   static mapping = {
-    photo type: AttachmentUserType, {
-      column name: "photo_file_name"
-      column name: "photo_file_size"
-      column name: "photo_content_type"
-    }
+
   }
 
   static constraints = {
@@ -137,11 +132,8 @@ class PhotoController {
 }
 ```
 
-
 Things to be Done
 ------------------
-
-* Develop Hibernate 4 User Types
 * Support Secure Files
 * Provide Convenience taglibs
 * Support Attachment Size closure for dynamic sizes based on other properties

@@ -7,6 +7,7 @@ import com.bertramlabs.plugins.karman.*
 import com.bertramlabs.plugins.selfie.processors.ImageResizer
 
 class Attachment {
+	static transients = ['originalFilename','propertyName','options','parentEntity','processors','domainName','fileStream','cloudFile','storageOptions','config','styles','inputStream']
 	String fileName
 	String contentType
 	Long fileSize
