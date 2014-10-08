@@ -23,7 +23,7 @@ class Attachment {
 	InputStream fileStream
 
 	def url(typeName, expiration=null) {
-		def storageOptions = getStorageOptions(propertyName,domainName)
+		def storageOptions = getStorageOptions(domainName,propertyName)
 		def typeFileName = fileNameForType(typeName)
 		def cloudFile = getCloudFile(typeName)
 		def url
@@ -62,7 +62,7 @@ class Attachment {
 		if(!typeName) {
 			typeName = 'original'
 		}
-		def storageOptions = getStorageOptions(propertyName,domainName)
+		def storageOptions = getStorageOptions(domainName,propertyName)
 		def bucket = storageOptions.bucket ?: '.'
 		def path = storageOptions.path ?: ''
 		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
@@ -71,7 +71,7 @@ class Attachment {
 	}
 
 	void save() {
-		def storageOptions = getStorageOptions(propertyName,domainName)
+		def storageOptions = getStorageOptions(domainName,propertyName)
 		def bucket = storageOptions.bucket ?: '.'
 		def path = storageOptions.path ?: ''
 		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
@@ -92,7 +92,7 @@ class Attachment {
 	}
 
 	void delete() {
-		def storageOptions = getStorageOptions(propertyName,domainName)
+		def storageOptions = getStorageOptions(domainName,propertyName)
 		def path = storageOptions.path ?: ''
 		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
 		def bucket = storageOptions.bucket ?: '.'
