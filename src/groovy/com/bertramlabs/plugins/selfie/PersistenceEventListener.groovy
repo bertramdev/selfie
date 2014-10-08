@@ -75,7 +75,7 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 				def attachmentOptions = event.entityObject.attachmentOptions?."${attachmentProp.name}"
 				def originalAttachment = event.entityObject.getPersistentValue(attachmentProp.name)
 				if(originalAttachment) {
-					originalAttachment.domainName = GrailsNameUtils.getPropertyName(event.entityObject.getClass(), null)
+					originalAttachment.domainName = GrailsNameUtils.getPropertyName(event.entityObject.getClass())
 					originalAttachment.propertyName = attachmentProp.name
 					originalAttachment.options = attachmentOptions
 					originalAttachment.parentEntity = event.entityObject
@@ -100,7 +100,7 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 			def attachmentOptions = event.entityObject.attachmentOptions?."${attachmentProp.name}"
 			def attachment = event.entityObject."${attachmentProp.name}"
 			if (attachment) {
-				attachment.domainName = GrailsNameUtils.getPropertyName(event.entityObject.getClass(),null)
+				attachment.domainName = GrailsNameUtils.getPropertyName(event.entityObject.getClass())
 				attachment.propertyName = attachmentProp.name
 				attachment.options = attachmentOptions
 				attachment.parentEntity = event.entityObject
