@@ -7,7 +7,7 @@ import com.bertramlabs.plugins.karman.*
 import com.bertramlabs.plugins.selfie.processors.ImageResizer
 
 class Attachment {
-	static transients = ['originalFilename','propertyName','options','parentEntity','processors','domainName','fileStream','cloudFile','storageOptions','config','styles','inputStream']
+	static transients = ['originalFilename','propertyName','options','parentEntity','processors','domainName','fileStream','cloudFile','storageOptions','config','styles','inputStream','fileSize','contentType']
 	String fileName
 	String contentType
 	Long fileSize
@@ -48,6 +48,22 @@ class Attachment {
 			}
 		}
 		return evaluatedOptions
+	}
+
+	public Integer getFileSize() {
+		if(fileSize) {
+			return fileSize
+		}
+		//TODO: This should be able to be fetched as metadata off the object
+		// fileSize = cloudFile?.inputStream?.bytes.size()
+		return null//fileSize
+	}
+
+	public String getContentType() {
+		if(contentType) {
+			return contentType
+		}
+		return null
 	}
 
 	void setInputStream(is) {
