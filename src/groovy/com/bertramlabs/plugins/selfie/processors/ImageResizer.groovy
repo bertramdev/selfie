@@ -25,6 +25,15 @@ class ImageResizer {
 		}
 	}
 
+	def process(typeName,styleOptions) {
+		def formatName = formatNameFromContentType(attachment.contentType)
+		if (!formatName) {
+			return
+		}
+		def image = ImageIO.read(attachment.inputStream)
+		processStyle(typeName, [format: formatName] + styleOptions.clone(), image)
+	}
+
 	def processStyle(typeName, options, image) {
 		try {
 			def typeFileName = attachment.fileNameForType(typeName)

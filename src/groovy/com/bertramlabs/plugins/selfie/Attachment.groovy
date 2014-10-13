@@ -5,6 +5,7 @@ import grails.util.Holders
 
 import com.bertramlabs.plugins.karman.*
 import com.bertramlabs.plugins.selfie.processors.ImageResizer
+import java.security.MessageDigest
 
 class Attachment {
 	static transients = ['originalFilename','propertyName','options','parentEntity','processors','domainName','fileStream','cloudFile','storageOptions','config','styles','inputStream','fileSize','contentType']
@@ -22,7 +23,7 @@ class Attachment {
 
 	InputStream fileStream
 
-	def url(typeName, expiration=null) {
+	def url(String typeName, expiration=null) {
 		def storageOptions = getStorageOptions(domainName,propertyName)
 		def typeFileName = fileNameForType(typeName)
 		def cloudFile = getCloudFile(typeName)
@@ -32,6 +33,37 @@ class Attachment {
 			url = cloudFile.getURL(expiration).toString()
 		} else {
 			url = evaluatedPath((storageOptions.url ?: '/'),typeName) + typeFileName
+		}
+
+		url
+	}
+
+	def url(Map styleOptions, expiration=null) {
+
+		def styleHashString = styleOptions.sort{it.key}.toString()
+		MessageDigest md = MessageDigest.getInstance("MD5")
+        md.update(styleHashString.bytes)
+        def checksum = md.digest()
+        def styleHash = checksum.encodeHex().toString()
+		def storageOptions = getStorageOptions(domainName,propertyName)
+		def typeFileName = fileNameForType(styleHash)
+		def cloudFile = getCloudFile(styleHash)
+		def url
+
+
+		if(!cloudFile.exists()) {
+			for (processorClass in processors) {
+				processorClass.newInstance(attachment: this).process(styleHash,styleOptions)
+			}
+			if(!cloudFile.exists()) {
+				return null
+			}
+		}
+
+		if(!storageOptions.url) {
+			url = cloudFile.getURL(expiration).toString()
+		} else {
+			url = evaluatedPath((storageOptions.url ?: '/'),styleHash) + typeFileName
 		}
 
 		url
@@ -54,16 +86,16 @@ class Attachment {
 		if(fileSize) {
 			return fileSize
 		}
-		//TODO: This should be able to be fetched as metadata off the object
-		// fileSize = cloudFile?.inputStream?.bytes.size()
-		return null//fileSize
+		fileSize = cloudFile?.contentLength
+		return fileSize
 	}
 
 	public String getContentType() {
 		if(contentType) {
 			return contentType
 		}
-		return null
+		contentType = cloudFile?.contentType
+		return contentType
 	}
 
 	void setInputStream(is) {
@@ -96,6 +128,7 @@ class Attachment {
 		if(fileStream && fileName) {
 			provider[bucket][ evaluatedPath(path,'original') + fileNameForType('original')] = fileStream.bytes
 			reprocessStyles()
+			fileStream = null
 		}
 
 
