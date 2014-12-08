@@ -176,7 +176,8 @@ class Attachment {
 	}
 
 	protected String evaluatedPath(String input,type='original') {
-		input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.getClass())}").replace(":id","${parentEntity.id}").replace(":type","${type}").replace(":style","${type}").replace(":propertyName","${propertyName}")
+		def path = input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.getClass())}").replace(":id","${parentEntity.id}").replace(":type","${type}").replace(":style","${type}").replace(":propertyName","${propertyName}")
+		options?.storage?.pathLowerCase ? path.toLowerCase() : path
 	}
 
 	void reprocessStyles() {
