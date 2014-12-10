@@ -8,14 +8,13 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenLocal()
         mavenCentral()
-        mavenRepo 'http://dl.bintray.com/karman/karman'
     }
     dependencies {
         compile 'org.imgscalr:imgscalr-lib:4.2'
     }
 
     plugins {
-        runtime ":karman:0.5.6"
+        runtime ":karman:0.6.1"
 
         if(System.getProperty('plugin.mode') != 'local') {
             runtime(':hibernate:3.6.10.16') {

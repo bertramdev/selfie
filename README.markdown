@@ -15,11 +15,8 @@ Installation
 Add The Following to your `BuildConfig`:
 
 ```groovy
-  repositories {
-    mavenRepo 'http://dl.bintray.com/karman/karman'
-  }
   plugins {
-    compile ':selfie:0.3.0'
+    compile ':selfie:0.5.0'
   }
 ```
 
