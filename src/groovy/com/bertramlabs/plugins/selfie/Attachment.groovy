@@ -23,6 +23,13 @@ class Attachment {
 
 	InputStream fileStream
 
+	
+	static constraints = {
+		contentType nullable:true
+		fileName nullable:true
+		fileSize nullable:true
+	}
+
 	def url(String typeName, expiration=null) {
 		def storageOptions = getStorageOptions(domainName,propertyName)
 		def typeFileName = fileNameForType(typeName)
