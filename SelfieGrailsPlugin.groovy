@@ -6,7 +6,7 @@ import com.bertramlabs.plugins.selfie.FileSizeConstraint
 import com.bertramlabs.plugins.selfie.PersistenceEventListener
 
 class SelfieGrailsPlugin {
-    def version         = "0.6.2"
+    def version         = "0.6.3"
     def grailsVersion   = "2.3 > *"
     def title           = "Selfie Plugin"
     def author          = "David Estes"
