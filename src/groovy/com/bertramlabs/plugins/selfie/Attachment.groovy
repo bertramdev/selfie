@@ -93,7 +93,9 @@ class Attachment {
 		if(fileSize) {
 			return fileSize
 		}
-		fileSize = cloudFile?.contentLength
+		if(cloudFile.exists()) {
+			fileSize = cloudFile?.contentLength
+		}
 		return fileSize
 	}
 
@@ -101,7 +103,10 @@ class Attachment {
 		if(contentType) {
 			return contentType
 		}
-		contentType = cloudFile?.contentType
+		if(cloudFile.exists()) {
+			contentType = cloudFile?.contentType	
+		}
+		
 		return contentType
 	}
 
@@ -110,7 +115,10 @@ class Attachment {
 	}
 
  	def getInputStream() {
-		cloudFile.inputStream
+ 		if(cloudFile.exists()) {
+			return cloudFile.inputStream
+		}
+		return null
 	}
 
  	def getCloudFile(typeName='original') {
@@ -133,7 +141,9 @@ class Attachment {
 
 		// First lets upload the original
 		if(fileStream && fileName) {
-			provider[bucket][ evaluatedPath(path,'original') + fileNameForType('original')] = fileStream.bytes
+			def cloudFile = provider[bucket][ evaluatedPath(path,'original') + fileNameForType('original')]
+			cloudFile.setInputStream(fileStream)
+			cloudFile.save()
 			reprocessStyles()
 			fileStream = null
 		}
@@ -199,6 +209,7 @@ class Attachment {
 	}
 
 	protected getStorageOptions(name, propertyName) {
+		println "Getting Storage Options for ${name}"
 		def options = ((config?.domain?."${name}"?."${propertyName}"?.storage ?: config?.domain?."${name}"?.storage  ?: config?.storage ?: [:]) + (options?.storage ?: [:])).clone()
 		if(options.providerOptions && !options.providerOptions.containsKey('defaultFileACL')) {
           options.providerOptions.defaultFileACL = com.bertramlabs.plugins.karman.CloudFileACL.PublicRead
