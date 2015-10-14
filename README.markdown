@@ -16,7 +16,7 @@ Add The Following to your `BuildConfig`:
 
 ```groovy
   plugins {
-    compile ':selfie:0.6.1'
+    compile ':selfie:0.6.2'
   }
 ```
 

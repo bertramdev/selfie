@@ -142,7 +142,13 @@ class Attachment {
 		// First lets upload the original
 		if(fileStream && fileName) {
 			def cloudFile = provider[bucket][ evaluatedPath(path,'original') + fileNameForType('original')]
-			cloudFile.setInputStream(fileStream)
+			if(fileSize) {
+				cloudFile.contentLength = fileSize
+				cloudFile.setInputStream(fileStream)	
+			} else {
+				cloudFile.bytes = fileStream.bytes
+			}
+			
 			cloudFile.save()
 			reprocessStyles()
 			fileStream = null
