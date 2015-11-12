@@ -190,7 +190,7 @@ class Attachment {
 	String fileNameForType(typeName) {
 		def fileNameWithOutExt = fileName.replaceFirst(/[.][^.]+$/, "")
 		def extension = (fileName =~ /[.]([^.]+)$/)[0][1]
-		"${fileNameWithOutExt}_${typeName}.${extension}"
+		"${fileNameWithOutExt}_${typeName}.${extension?.toLowerCase()}"
 	}
 
 	def getStyles() {
