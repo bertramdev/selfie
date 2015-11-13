@@ -192,7 +192,7 @@ class Attachment {
 		def extension 
 		try {
 			extension = (fileName =~ /[.]([^.]+)$/)[0][1]
-			"${fileNameWithOutExt}_${typeName}.${extension?.toLowerCase()}"
+			"${fileNameWithOutExt}_${typeName}.${extension?.toLowerCase()}" //uppercase extensions prevent correct content type detection
 		} catch (IndexOutOfBoundsException e) {
 			//file has no extension
 			"${fileNameWithOutExt}_${typeName}"
