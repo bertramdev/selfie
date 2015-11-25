@@ -56,7 +56,7 @@ class ImageResizer {
 
 				outputImage = Scalr.crop(outputImage, xOffset,yOffset, options.width, options.height, Scalr.OP_ANTIALIAS)
 			} else if (options.mode == 'crop') {
-				outputImage = Scalr.crop(outputImage,options.x ?: 0,options.y ?: 0, options.width, options.height, Scalr.OP_ANTIALIAS)
+				outputImage = Scalr.crop(image,options.x ?: 0,options.y ?: 0, options.width, options.height, Scalr.OP_ANTIALIAS)
 			} else if (options.mode == 'scale') {
 				outputImage = Scalr.resize(image, Scalr.Method.AUTOMATIC, Scalr.Mode.AUTOMATIC, options.width, options.height, Scalr.OP_ANTIALIAS)
 			}
