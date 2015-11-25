@@ -12,7 +12,7 @@ class ContentTypeConstraint extends AbstractConstraint {
 	String getName() { "contentType" }
 
 	protected void processValidate(target, propertyValue, Errors errors) {
-		def contentType = propertyValue.contentType
+		def contentType = propertyValue?.contentType
 		if (constraintParameter instanceof List) {
 			if (!constraintParameter.contains(contentType)) {
 				rejectValue target, errors, "default.invalid.${name}.message", "${name}.invalid", [constraintPropertyName, constraintOwningClass, contentType] as Object[]

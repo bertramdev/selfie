@@ -47,10 +47,10 @@ class ImageResizer {
 				outputImage = Scalr.resize(image, Scalr.Method.AUTOMATIC, mode, options.width, options.height, Scalr.OP_ANTIALIAS)
 				def xOffset = 0
 				def yOffset = 0
-				if(!options.x) {
+				if(options.x == null) {
 					xOffset = Math.floor((outputImage.width - options.width) / 2).toInteger()
 				}
-				if(!options.y) {
+				if(options.y == null) {
 						yOffset = Math.floor((outputImage.height - options.height) / 2).toInteger()
 				}
 

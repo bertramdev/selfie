@@ -12,7 +12,7 @@ class FileSizeConstraint extends AbstractConstraint {
 	String getName() { "fileSize" }
 
 	protected void processValidate(target, propertyValue, Errors errors) {
-		def fileSize = propertyValue.fileSize
+		def fileSize = propertyValue?.fileSize ?: 0
 		if (constraintParameter instanceof Map) {
 			if (constraintParameter.min) {
 				if (fileSize < constraintParameter.min) {
