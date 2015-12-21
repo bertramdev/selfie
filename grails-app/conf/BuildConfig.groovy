@@ -20,7 +20,7 @@ grails.project.dependency.resolution = {
             runtime(':hibernate:3.6.10.16') {
                 export = false
             }
-            build(":release:3.0.1",":rest-client-builder:1.0.3") {
+            build(":release:3.1.2",":rest-client-builder:1.0.3") {
                 export = false
             }
         }
