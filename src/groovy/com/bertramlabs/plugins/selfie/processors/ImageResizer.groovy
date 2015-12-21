@@ -53,8 +53,9 @@ class ImageResizer {
 				if(options.y == null) {
 						yOffset = Math.floor((outputImage.height - options.height) / 2).toInteger()
 				}
-
-				outputImage = Scalr.crop(outputImage, xOffset,yOffset, options.width, options.height, Scalr.OP_ANTIALIAS)
+				if(xOffset >= 0 && yOffset >= 0) {
+					outputImage = Scalr.crop(outputImage, xOffset,yOffset, options.width, options.height, Scalr.OP_ANTIALIAS)
+				}
 			} else if (options.mode == 'crop') {
 				outputImage = Scalr.crop(image,options.x ?: 0,options.y ?: 0, options.width, options.height, Scalr.OP_ANTIALIAS)
 			} else if (options.mode == 'scale') {
