@@ -1,6 +1,6 @@
 package com.bertramlabs.plugins.selfie
 
-import org.grails.databinding.converters.ValueConverter
+import grails.databinding.converters.ValueConverter
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 class AttachmentValueConverter implements ValueConverter {

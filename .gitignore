@@ -9,3 +9,5 @@
 /web-app/WEB-INF
 /.link_to_grails_plugins/
 /target-eclipse/
+build/
+.gradle/

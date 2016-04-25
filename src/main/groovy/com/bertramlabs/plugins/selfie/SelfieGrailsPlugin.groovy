@@ -1,13 +1,13 @@
-import org.codehaus.groovy.grails.validation.ConstrainedProperty
+package com.bertramlabs.plugins.selfie
 
-import com.bertramlabs.plugins.selfie.AttachmentValueConverter
-import com.bertramlabs.plugins.selfie.ContentTypeConstraint
-import com.bertramlabs.plugins.selfie.FileSizeConstraint
-import com.bertramlabs.plugins.selfie.PersistenceEventListener
+import grails.plugins.*
+import grails.validation.ConstrainedProperty
 
-class SelfieGrailsPlugin {
-    def version         = "0.6.6"
-    def grailsVersion   = "2.3 > *"
+class SelfieGrailsPlugin extends Plugin {
+
+    // the version or versions of Grails the plugin is designed for
+    def grailsVersion = "3.1.5 > *"
+
     def title           = "Selfie Plugin"
     def author          = "David Estes"
     def authorEmail     = "destes@bcap.com"
@@ -21,19 +21,21 @@ class SelfieGrailsPlugin {
     "grails-app/views/error.gsp"
     ]
 
-    def doWithSpring = {
-        attachmentConverter AttachmentValueConverter
+    Closure doWithSpring() { {->
+            attachmentConverter AttachmentValueConverter
+        }
     }
 
-    def doWithDynamicMethods = { ctx ->
+    void doWithDynamicMethods() {
         ConstrainedProperty.registerNewConstraint('contentType', ContentTypeConstraint)
         ConstrainedProperty.registerNewConstraint('fileSize', FileSizeConstraint)
     }
 
-    def doWithApplicationContext = { ctx ->
-        application.mainContext.eventTriggeringInterceptor.datastores.each { k, datastore ->
+    void doWithApplicationContext() {
+        grailsApplication.mainContext.eventTriggeringInterceptor.datastores.each { k, datastore ->
             applicationContext.addApplicationListener new PersistenceEventListener(datastore)
         }
+
     }
 
 }
