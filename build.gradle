@@ -16,8 +16,8 @@ plugins {
     id "com.jfrog.bintray" version "1.6"
 }
 
-version "1.0.0"
-group "selfie"
+version "1.0.0.SNAPSHOT"
+group "com.bertramlabs.plugins"
 
 apply plugin:"eclipse"
 apply plugin:"idea"
