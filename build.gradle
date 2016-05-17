@@ -16,7 +16,7 @@ plugins {
     id "com.jfrog.bintray" version "1.6"
 }
 
-version "1.0.0"
+version "1.0.1"
 group "com.bertramlabs.plugins"
 
 apply plugin:"eclipse"

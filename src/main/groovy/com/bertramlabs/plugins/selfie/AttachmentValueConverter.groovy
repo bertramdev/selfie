@@ -2,11 +2,12 @@ package com.bertramlabs.plugins.selfie
 
 import grails.databinding.converters.ValueConverter
 import org.springframework.web.multipart.commons.CommonsMultipartFile
+import org.springframework.web.multipart.MultipartFile
 
 class AttachmentValueConverter implements ValueConverter {
 
 	boolean canConvert(value) {
-		value instanceof CommonsMultipartFile
+		value instanceof MultipartFile
 	}
 
 	def convert(value) {
@@ -17,5 +18,7 @@ class AttachmentValueConverter implements ValueConverter {
 		new Attachment(contentType: value.contentType,originalFilename: value.originalFilename, fileSize: value.size, inputStream: value.inputStream)
 	}
 
-	Class<?> getTargetType() { Attachment }
+	Class<?> getTargetType() { 
+		return Attachment 
+	}
 }
