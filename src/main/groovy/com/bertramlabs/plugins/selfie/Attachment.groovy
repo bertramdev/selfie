@@ -35,6 +35,9 @@ class Attachment {
 		def typeFileName = fileNameForType(typeName)
 		def cloudFile = getCloudFile(typeName)
 		def url
+		if(!parentEntity) {
+			return null
+		}
 
 		if(!storageOptions.url) {
 			url = cloudFile.getURL(expiration).toString()
