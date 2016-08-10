@@ -125,6 +125,9 @@ class Attachment {
 		if(!typeName) {
 			typeName = 'original'
 		}
+		if(!parentEntity) {
+			return null
+		}
 		def storageOptions = getStorageOptions(domainName,propertyName)
 		def bucket = storageOptions.bucket ?: '.'
 		def path = storageOptions.path ?: ''
