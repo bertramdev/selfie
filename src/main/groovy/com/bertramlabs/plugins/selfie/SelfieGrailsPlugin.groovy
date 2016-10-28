@@ -2,6 +2,7 @@ package com.bertramlabs.plugins.selfie
 
 import grails.plugins.*
 import grails.validation.ConstrainedProperty
+import org.grails.orm.hibernate.HibernateDatastore
 
 class SelfieGrailsPlugin extends Plugin {
 
@@ -32,9 +33,11 @@ class SelfieGrailsPlugin extends Plugin {
     }
 
     void doWithApplicationContext() {
-        grailsApplication.mainContext.eventTriggeringInterceptor.datastores.each { k, datastore ->
-            applicationContext.addApplicationListener new PersistenceEventListener(datastore)
-        }
+        HibernateDatastore datastore = applicationContext.getBean(HibernateDatastore)
+        applicationContext.addApplicationListener new PersistenceEventListener(datastore)
+        // grailsApplication.mainContext.eventTriggeringInterceptor.datastores.each { k, datastore ->
+            // applicationContext.addApplicationListener new PersistenceEventListener(datastore)
+        // }
 
     }
 
