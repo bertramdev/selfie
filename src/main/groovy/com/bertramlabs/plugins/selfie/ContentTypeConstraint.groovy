@@ -1,6 +1,6 @@
 package com.bertramlabs.plugins.selfie
 
-import org.codehaus.groovy.grails.validation.AbstractConstraint
+import grails.validation.AbstractConstraint
 import org.springframework.validation.Errors
 
 class ContentTypeConstraint extends AbstractConstraint {
