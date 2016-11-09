@@ -3,9 +3,9 @@ package com.bertramlabs.plugins.selfie.processors
 import com.bertramlabs.plugins.selfie.Attachment
 import javax.imageio.ImageIO
 import org.imgscalr.Scalr
-import groovy.util.logging.Log4j
+import groovy.util.logging.Commons
 
-@Log4j
+@Commons
 class ImageResizer {
 
 	private static final Map<String, String> CONTENT_TYPE_TO_NAME =
@@ -35,14 +35,35 @@ class ImageResizer {
 	}
 
 	def processStyle(typeName, options, image) {
-		try {
+		// try {
 			def typeFileName = attachment.fileNameForType(typeName)
 			def outputImage
 
-			if(options.mode == 'fit') {
+			if(options.mode == 'fit' || options.mode == 'fity' || options.mode == 'fitx' ) {
 				def mode = Scalr.Mode.FIT_TO_HEIGHT
-				if(image.width < image.height) {
+				if(options.mode == 'fit') {
+					if(image.width > options.width || image.height > options.height) {
+						if(image.width - options.width >= image.height - options.height) {
+							mode = Scalr.Mode.FIT_TO_WIDTH
+						} else {
+							mode = Scalr.Mode.FIT_TO_HEIGHT
+						}
+					} else if(image.width == options.width) {
+						mode = Scalr.Mode.FIT_TO_WIDTH
+					} else if (image.height == options.height) {
+						mode = Scalr.Mode.FIT_TO_HEIGHT	
+					} else {
+						if((options.height - image.height) < (options.width - image.width)) {
+							mode = Scalr.Mode.FIT_TO_HEIGHT
+						} else {
+							mode = Scalr.Mode.FIT_TO_WIDTH
+						}
+					}
+					
+				} else if(options.mode == 'fitx') {
 					mode = Scalr.Mode.FIT_TO_WIDTH
+				} else {
+					mode = Scalr.Mode.FIT_TO_HEIGHT
 				}
 				outputImage = Scalr.resize(image, Scalr.Method.AUTOMATIC, mode, options.width, options.height, Scalr.OP_ANTIALIAS)
 				def xOffset = 0
@@ -66,9 +87,9 @@ class ImageResizer {
 
 			ImageIO.write(outputImage, options.format,saveStream)
 			attachment.saveProcessedStyle(typeName,saveStream.toByteArray())
-		} catch(e) {
-			log.error("Error Processing Uploaded File ${attachment.fileName} - ${typeName}",e)
-		}
+		// } catch(e) {
+		// 	log.error("Error Processing Uploaded File ${attachment.fileName} - ${typeName}",e)
+		// }
 
 	}
 
