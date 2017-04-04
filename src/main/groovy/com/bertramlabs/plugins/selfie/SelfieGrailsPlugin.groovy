@@ -19,7 +19,8 @@ class SelfieGrailsPlugin extends Plugin {
     def issueManagement = [system: "GITHUB", url: "https://github.com/bertramdev/selfie/issues"]
     def scm             = [url: "https://github.com/bertramdev/selfie"]
     def pluginExcludes  = [
-    "grails-app/views/error.gsp"
+    "grails-app/views/error.gsp",
+    "grails-app/domain/com/bertramlabs/plugins/selfie/User.groovy"
     ]
 
     Closure doWithSpring() { {->
@@ -34,7 +35,7 @@ class SelfieGrailsPlugin extends Plugin {
 
     void doWithApplicationContext() {
         HibernateDatastore datastore = applicationContext.getBean(HibernateDatastore)
-        applicationContext.addApplicationListener new PersistenceEventListener(datastore)
+        applicationContext.addApplicationListener(new PersistenceEventListener(datastore))
         // grailsApplication.mainContext.eventTriggeringInterceptor.datastores.each { k, datastore ->
             // applicationContext.addApplicationListener new PersistenceEventListener(datastore)
         // }

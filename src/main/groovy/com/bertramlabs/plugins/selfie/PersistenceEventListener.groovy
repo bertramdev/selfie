@@ -5,7 +5,7 @@ import org.grails.datastore.mapping.core.Datastore
 import org.grails.datastore.mapping.engine.event.AbstractPersistenceEvent
 import org.springframework.context.ApplicationEvent
 import org.grails.datastore.mapping.engine.event.EventType
-import org.codehaus.groovy.grails.commons.DomainClassArtefactHandler
+import org.grails.core.artefact.DomainClassArtefactHandler
 import grails.util.Holders
 import grails.util.GrailsNameUtils
 // import static org.grails.datastore.mapping.engine.event.EventType
