@@ -65,7 +65,7 @@ class ImageResizer {
 				} else {
 					mode = Scalr.Mode.FIT_TO_HEIGHT
 				}
-				outputImage = Scalr.resize(image, Scalr.Method.AUTOMATIC, mode, options.width, options.height, Scalr.OP_ANTIALIAS)
+				outputImage = Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, mode, options.width, options.height, Scalr.OP_ANTIALIAS)
 				def xOffset = 0
 				def yOffset = 0
 				if(options.x == null) {
@@ -80,7 +80,7 @@ class ImageResizer {
 			} else if (options.mode == 'crop') {
 				outputImage = Scalr.crop(image,options.x ?: 0,options.y ?: 0, options.width, options.height, Scalr.OP_ANTIALIAS)
 			} else if (options.mode == 'scale') {
-				outputImage = Scalr.resize(image, Scalr.Method.AUTOMATIC, Scalr.Mode.AUTOMATIC, options.width, options.height, Scalr.OP_ANTIALIAS)
+				outputImage = Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, options.width, options.height, Scalr.OP_ANTIALIAS)
 			}
 
 			def saveStream = new ByteArrayOutputStream()
