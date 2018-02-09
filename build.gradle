@@ -17,7 +17,7 @@ plugins {
     id "com.jfrog.bintray" version "1.6"
 }
 
-version "1.2.1"
+version "1.2.2-SNAPSHOT"
 group "com.bertramlabs.plugins"
 
 apply plugin:"eclipse"
@@ -52,7 +52,7 @@ dependencies {
     compile "org.grails:grails-web-boot"
     compile "org.grails.plugins:cache"
     compile 'org.imgscalr:imgscalr-lib:4.2'
-    compile 'com.bertramlabs.plugins:karman-grails:0.11.2'
+    compile 'com.bertramlabs.plugins:karman-grails:1.1.1'
 
     console "org.grails:grails-console"
 
