@@ -39,9 +39,9 @@ class ImageResizer {
 			def typeFileName = attachment.fileNameForType(typeName)
 			def outputImage
 
-			if(options.mode == 'fit' || options.mode == 'fity' || options.mode == 'fitx' ) {
+			if(options.mode == 'fit' || options.mode == 'fity' || options.mode == 'fitx' || options.mode == 'fill') {
 				def mode = Scalr.Mode.FIT_TO_HEIGHT
-				if(options.mode == 'fit') {
+				if(options.mode == 'fit' || options.mode == 'fill') {
 					if(image.width > options.width || image.height > options.height) {
 						if(image.width - options.width >= image.height - options.height) {
 							mode = Scalr.Mode.FIT_TO_WIDTH
@@ -59,8 +59,12 @@ class ImageResizer {
 							mode = Scalr.Mode.FIT_TO_WIDTH
 						}
 					}
-					
-				} else if(options.mode == 'fitx') {
+					if(options.mode == 'fill'){
+						mode = (mode == Scalr.Mode.FIT_TO_HEIGHT)?
+							Scalr.Mode.FIT_TO_WIDTH:Scalr.Mode.FIT_TO_HEIGHT
+					}
+				}
+				else if(options.mode == 'fitx') {
 					mode = Scalr.Mode.FIT_TO_WIDTH
 				} else {
 					mode = Scalr.Mode.FIT_TO_HEIGHT
