@@ -29,6 +29,13 @@ class Attachment {
 		fileName nullable:true
 		fileSize nullable:true
 	}
+	static getFilename(String filename) {
+		filename?.lastIndexOf('.') >= 0 ? filename.substring(0, filename.lastIndexOf('.')) : filename
+	}
+
+	static getExtension(String filename) {
+		filename?.lastIndexOf('.') >= 0 ? filename?.substring(filename?.lastIndexOf('.'), filename.length()) : ''
+	}
 
 	def url(String typeName, expiration=null) {
 		def storageOptions = getStorageOptions(domainName,propertyName)
@@ -190,19 +197,14 @@ class Attachment {
 
 	void setOriginalFilename(String name) {
 		originalFilename = name
-		fileName = fileName ?: originalFilename
+        fileName = fileName ?: config.generateFileName ? config.generateFileName(originalFilename) : originalFilename
 	}
 
 	String fileNameForType(typeName) {
-		def fileNameWithOutExt = fileName.replaceFirst(/[.][^.]+$/, "")
-		def extension 
-		try {
-			extension = (fileName =~ /[.]([^.]+)$/)[0][1]
-			"${fileNameWithOutExt}_${typeName}.${extension?.toLowerCase()}" //uppercase extensions prevent correct content type detection
-		} catch (IndexOutOfBoundsException e) {
-			//file has no extension
-			"${fileNameWithOutExt}_${typeName}"
-		}
+		def fileNameWithOutExt = getFilename(fileName)
+		def extension = getExtension(fileName)
+
+		"${fileNameWithOutExt}_${typeName}${extension}"
 	}
 
 	def getStyles() {
