@@ -38,7 +38,7 @@ class AttachmentSpec extends Specification implements DomainUnitTest<User> {
     }
 
     void cleanupSpec() {
-        storage.deleteDir()
+        //storage.deleteDir()
     }
 
     void "Converts a multipartfile to attachment"() {
@@ -51,9 +51,10 @@ class AttachmentSpec extends Specification implements DomainUnitTest<User> {
             user.attachment instanceof Attachment
     }
 
-    void "Saves an attachmen to local storage and removes it if null assigned"() {
+    void "Saves an attachment to local storage and removes it if null assigned"() {
         given:
             User user = new User()
+        user.getPersistentValue()
             InputStream inputStream = this.class.classLoader.getResourceAsStream('image.jpg')
             Attachment attachment = new Attachment(contentType: 'image/jpeg',
                 originalFilename: 'image.jpeg', inputStream: inputStream)

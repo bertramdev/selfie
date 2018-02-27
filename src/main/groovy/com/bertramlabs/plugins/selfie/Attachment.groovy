@@ -8,7 +8,7 @@ import com.bertramlabs.plugins.selfie.processors.ImageResizer
 import java.security.MessageDigest
 
 class Attachment {
-	static transients = ['originalFilename','propertyName','options','parentEntity','processors','domainName','fileStream','cloudFile','storageOptions','config','styles','inputStream','fileSize','contentType']
+	static transients = ['originalFilename','propertyName','options','parentEntity','processors','domainName','fileStream','cloudFile','storageOptions','config','styles','inputStream']
 	String fileName
 	String contentType
 	Long fileSize
@@ -99,11 +99,11 @@ class Attachment {
 		return evaluatedOptions
 	}
 
-	public Integer getFileSize() {
+	public Long getFileSize() {
 		if(fileSize) {
 			return fileSize
 		}
-		if(cloudFile.exists()) {
+		if(cloudFile?.exists()) {
 			fileSize = cloudFile?.contentLength
 		}
 		return fileSize
@@ -197,7 +197,7 @@ class Attachment {
 
 	void setOriginalFilename(String name) {
 		originalFilename = name
-        fileName = fileName ?: config.generateFileName ? config.generateFileName(originalFilename) : originalFilename
+        fileName = fileName ?: originalFilename
 	}
 
 	String fileNameForType(typeName) {
