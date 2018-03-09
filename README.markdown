@@ -12,20 +12,21 @@ Selfie is a Grails Image / File Upload Plugin. Use Selfie to attach files to you
 Installation
 ------------
 
-Add The Following to your `BuildConfig`:
+Add The Following to your `build.gradle`:
 
 ```groovy
-  plugins {
-    compile ':selfie:0.6.2'
-  }
+dependencies {
+    compile 'com.bertramlabs.plugins:selfie:1.2.1'
+}
 ```
 
 Configuration
 -------------
 
-Selfie utilizes karman for dealing with asset storage. Karman is a standardized interface for sending files up to CDN's as well as local file stores. It is also capable of serving local files.
+Selfie utilizes [karman](http://plugins.grails.org/plugin/bertramlabs/karman-grails) for dealing with asset storage. Karman is a standardized interface for sending files up to CDN's as well as local file stores. It is also capable of serving local files.
+
 In order to upload files, we must first designate a storage provider for these files. This can be done in the `attachmentOptions` static map in each GORM domain with which you have an Attachment,
-or this can be defined in your `Config.groovy`.
+or this can be defined in your `application.groovy`.
 
 ```groovy
 grails {
@@ -50,6 +51,7 @@ grails {
 The `providerOptions` section will pass straight through to karmans `StorageProvider.create()` factory. The `provider` specifies the storage provider to use while the other options are specific to each provider.
 
 In the above example we are using the karman local storage provider. This is all well and good, but we also need to be able to serve these files from a URL. Depending on your environment this can get a bit tricky.
+
 One option is to use nginx to serve the directory and point the `baseUrl` to the appropriate endpoint. Another option is to use the built in endpoint provided by the karman plugin:
 
 
@@ -106,7 +108,6 @@ Example DSL:
 
 ```groovy
 import com.bertramlabs.plugins.selfie.Attachment
-import com.bertramlabs.plugins.selfie.AttachmentUserType
 
 class Book {
   String name
@@ -124,16 +125,13 @@ class Book {
 
   static embedded = ['photo'] //required
 
-  static mapping = {
-
-  }
+  static mapping = { }
 
   static constraints = {
     photo contentType: [‘png’,’jpg’], fileSize:1024*1024 // 1mb
   }
 }
 ```
-
 
 Uploading Files could not be simpler. Simply use a multipart form and upload a file:
 
@@ -155,6 +153,17 @@ class PhotoController {
       println "Error Saving! ${photo.errors.allErrors}"
     }
     redirect view: "index"
+  }
+}
+```
+
+Or if you'd like to bind the MultiPartFile manually you can convert it to an Attachment as so:
+
+```groovy
+class PhotoService {
+  def save(String title, MultipartFile file) {
+    def photo = new AttachmentValueConverter().convert(file)
+    new Book(title: title, photo: photo).save()
   }
 }
 ```

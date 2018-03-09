@@ -39,9 +39,9 @@ class ImageResizer {
 			def typeFileName = attachment.fileNameForType(typeName)
 			def outputImage
 
-			if(options.mode == 'fit' || options.mode == 'fity' || options.mode == 'fitx' ) {
+			if(options.mode == 'fit' || options.mode == 'fity' || options.mode == 'fitx' || options.mode == 'fill') {
 				def mode = Scalr.Mode.FIT_TO_HEIGHT
-				if(options.mode == 'fit') {
+				if(options.mode == 'fit' || options.mode == 'fill') {
 					if(image.width > options.width || image.height > options.height) {
 						if(image.width - options.width >= image.height - options.height) {
 							mode = Scalr.Mode.FIT_TO_WIDTH
@@ -59,13 +59,17 @@ class ImageResizer {
 							mode = Scalr.Mode.FIT_TO_WIDTH
 						}
 					}
-					
-				} else if(options.mode == 'fitx') {
+					if(options.mode == 'fill'){
+						mode = (mode == Scalr.Mode.FIT_TO_HEIGHT)?
+							Scalr.Mode.FIT_TO_WIDTH:Scalr.Mode.FIT_TO_HEIGHT
+					}
+				}
+				else if(options.mode == 'fitx') {
 					mode = Scalr.Mode.FIT_TO_WIDTH
 				} else {
 					mode = Scalr.Mode.FIT_TO_HEIGHT
 				}
-				outputImage = Scalr.resize(image, Scalr.Method.AUTOMATIC, mode, options.width, options.height, Scalr.OP_ANTIALIAS)
+				outputImage = Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, mode, options.width, options.height, Scalr.OP_ANTIALIAS)
 				def xOffset = 0
 				def yOffset = 0
 				if(options.x == null) {
@@ -80,7 +84,7 @@ class ImageResizer {
 			} else if (options.mode == 'crop') {
 				outputImage = Scalr.crop(image,options.x ?: 0,options.y ?: 0, options.width, options.height, Scalr.OP_ANTIALIAS)
 			} else if (options.mode == 'scale') {
-				outputImage = Scalr.resize(image, Scalr.Method.AUTOMATIC, Scalr.Mode.AUTOMATIC, options.width, options.height, Scalr.OP_ANTIALIAS)
+				outputImage = Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, options.width, options.height, Scalr.OP_ANTIALIAS)
 			}
 
 			def saveStream = new ByteArrayOutputStream()

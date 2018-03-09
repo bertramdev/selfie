@@ -11,7 +11,7 @@ class AttachmentValueConverter implements ValueConverter {
 	}
 
 	def convert(value) {
-		if (!value.originalFilename) {
+		if (!value?.originalFilename) {
 			return null
 		}
 
