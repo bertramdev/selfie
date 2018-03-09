@@ -16,20 +16,18 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 	}
 
 	protected void onPersistenceEvent(final AbstractPersistenceEvent event) {
-		def attachments = attachmentsForEvent(event)
-		if(attachments) {
+		
 			switch(event.eventType) {
 				case EventType.PreInsert:
 				// println "PRE INSERT ${event.entityObject}"
 
 				break
 				case EventType.PostInsert:
-				// println "POST INSERT ${event.entityObject}"
-				preSave(event,attachments)
-				break
 				case EventType.PreUpdate:
-				// println "PRE UPDATE ${event.entityObject}"
-				preSave(event, attachments)
+					def attachments = attachmentsForEvent(event)
+					if(attachments) {
+						preSave(event,attachments)
+					}
 				break
 				case EventType.PostUpdate:
 				// println "POST UPDATE ${event.entityObject}"
@@ -40,15 +38,20 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 
 				break
 				case EventType.PostDelete:
-				postDelete(event,attachments)
+					def attachments = attachmentsForEvent(event)
+					if(attachments) {
+						postDelete(event,attachments)
+					}
 				// println "POST DELETE ${event.entityObject}"
 				break
 				case EventType.PreLoad:
 				// println "PRE LOAD ${event.entityObject}"
 				break
 				case EventType.PostLoad:
-				// println "POST LOAD ${event.entityObject}"
-				postLoad(event,attachments)
+					def attachments = attachmentsForEvent(event)
+					if(attachments) {
+						postLoad(event,attachments)
+					}
 				break
 			}
 		}

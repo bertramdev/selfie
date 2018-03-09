@@ -22,6 +22,7 @@ class SelfieGrailsPlugin extends Plugin {
     "grails-app/views/error.gsp",
     "grails-app/domain/com/bertramlabs/plugins/selfie/User.groovy"
     ]
+    List loadAfter = ['hibernate3', 'hibernate4', 'hibernate5']
 
     Closure doWithSpring() { {->
             attachmentConverter AttachmentValueConverter
