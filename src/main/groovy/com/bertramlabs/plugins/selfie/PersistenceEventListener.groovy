@@ -1,117 +1,109 @@
 package com.bertramlabs.plugins.selfie
 
-import org.grails.datastore.mapping.engine.event.AbstractPersistenceEventListener
-import org.grails.datastore.mapping.core.Datastore
-import org.grails.datastore.mapping.engine.event.AbstractPersistenceEvent
-import org.springframework.context.ApplicationEvent
-import org.grails.datastore.mapping.engine.event.EventType
-import org.grails.core.artefact.DomainClassArtefactHandler
-import grails.util.Holders
+import grails.util.GrailsClassUtils
 import grails.util.GrailsNameUtils
-// import static org.grails.datastore.mapping.engine.event.EventType
+import groovy.transform.CompileStatic
+import groovy.transform.Memoized
+import org.grails.datastore.gorm.GormEntity
+import org.grails.datastore.mapping.core.Datastore
+import org.grails.datastore.mapping.dirty.checking.DirtyCheckable
+import org.grails.datastore.mapping.engine.event.AbstractPersistenceEvent
+import org.grails.datastore.mapping.engine.event.AbstractPersistenceEventListener
+import org.grails.datastore.mapping.engine.event.EventType
+import org.grails.datastore.mapping.model.PersistentEntity
+import org.grails.datastore.mapping.model.PersistentProperty
+import org.springframework.context.ApplicationEvent
 
+@CompileStatic
 class PersistenceEventListener extends AbstractPersistenceEventListener {
 	PersistenceEventListener(final Datastore datastore) {
 		super(datastore)
 	}
 
 	protected void onPersistenceEvent(final AbstractPersistenceEvent event) {
-		
-			switch(event.eventType) {
-				case EventType.PreInsert:
-				// println "PRE INSERT ${event.entityObject}"
+		if(!event.entityObject) return
 
-				break
-				case EventType.PostInsert:
-				case EventType.PreUpdate:
-					def attachments = attachmentsForEvent(event)
-					if(attachments) {
-						preSave(event,attachments)
-					}
-				break
-				case EventType.PostUpdate:
-				// println "POST UPDATE ${event.entityObject}"
 
-				break
-				case EventType.PreDelete:
-				// println "PRE DELETE ${event.entityObject}"
-
-				break
-				case EventType.PostDelete:
-					def attachments = attachmentsForEvent(event)
-					if(attachments) {
-						postDelete(event,attachments)
-					}
-				// println "POST DELETE ${event.entityObject}"
-				break
-				case EventType.PreLoad:
-				// println "PRE LOAD ${event.entityObject}"
-				break
-				case EventType.PostLoad:
-					def attachments = attachmentsForEvent(event)
-					if(attachments) {
-						postLoad(event,attachments)
-					}
-				break
-			}
+		switch(event.eventType) {
+			case EventType.PostInsert:
+			case EventType.PreUpdate:
+				def attachments = attachmentsForEvent(event.entity)
+				if(attachments) {
+					preSave(event, attachments)
+				}
+			break
+			case EventType.PostDelete:
+				def attachments = attachmentsForEvent(event.entity)
+				if(attachments) {
+					postDelete(event,attachments)
+				}
+			break
+			case EventType.PostLoad:
+				def attachments = attachmentsForEvent(event.entity)
+				if(attachments) {
+					postLoad(event,attachments)
+				}
+			break
 		}
 	}
 
-	boolean supportsEventType(Class<? extends ApplicationEvent> eventType) { true }
+	boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+		return true;
+	}
 
-	void postLoad(final AbstractPersistenceEvent event, attachments) {
+	void postLoad(final AbstractPersistenceEvent event, List<PersistentProperty> attachments) {
 		applyPropertyOptions(event,attachments)
 	}
 
-	void postDelete(final AbstractPersistenceEvent event, attachments) {
+	void postDelete(final AbstractPersistenceEvent event, List<PersistentProperty> attachments) {
 		applyPropertyOptions(event,attachments)
 		for (attachmentProp in attachments) {
-			def attachment = event.entityObject."${attachmentProp.name}"
+			Attachment attachment = (Attachment) ((GroovyObject)event.entityObject).getProperty(attachmentProp.name)
 			attachment?.delete()
 		}
 	}
 
-	void preSave(final AbstractPersistenceEvent event, attachments) {
+	void preSave(final AbstractPersistenceEvent event, List<PersistentProperty> attachments) {
 		applyPropertyOptions(event,attachments)
+		GormEntity gormEntity = (GormEntity) event.entityObject
+		Class domainEntity = event.entityObject.class
+		Map<String,Map> attachmentOptions = (Map) GrailsClassUtils.getStaticFieldValue(domainEntity,'attachmentOptions')
 		for (attachmentProp in attachments) {
-			if (event.entityObject.isDirty(attachmentProp.name)) {
-				def attachmentOptions = event.entityObject.attachmentOptions?."${attachmentProp.name}"
-				def originalAttachment = event.entityObject.getPersistentValue(attachmentProp.name)
+			if(event.entityObject instanceof DirtyCheckable && ((DirtyCheckable)event.entityObject).hasChanged(attachmentProp.name)){
+				def propertyAttachmentOptions = attachmentOptions?.get(attachmentProp.name)
+
+				Attachment originalAttachment = (Attachment) gormEntity.getPersistentValue(attachmentProp.name)
 				if(originalAttachment) {
 					originalAttachment.domainName = GrailsNameUtils.getPropertyName(event.entityObject.getClass())
 					originalAttachment.propertyName = attachmentProp.name
-					originalAttachment.options = attachmentOptions
+					originalAttachment.options = propertyAttachmentOptions
 					originalAttachment.parentEntity = event.entityObject
 					originalAttachment.delete()
 				}
 			}
-			def attachment = event.entityObject."${attachmentProp.name}"
+			Attachment attachment = (Attachment) ((GroovyObject)gormEntity).getProperty(attachmentProp.name)
 			attachment?.save()
 		}
 	}
 
- 	def attachmentsForEvent(final AbstractPersistenceEvent event) {
-		if(!event?.entityObject) {
-			return null
-		}
-		def domainArtefact = getDomainArtefact(event.entityObject.getClass().name)
-		domainArtefact.properties.findAll { it.type == Attachment } ?: null
+	@Memoized
+	List<PersistentProperty> attachmentsForEvent(PersistentEntity persistentEntity){
+		return persistentEntity?
+			persistentEntity.persistentProperties.findAll{it.type == Attachment}:
+			[] as List<PersistentProperty>
 	}
 
-	protected applyPropertyOptions(event, attachments) {
+	protected applyPropertyOptions(final AbstractPersistenceEvent event, List<PersistentProperty> attachments) {
+		Map<String,Map> attachmentOptions = (Map) GrailsClassUtils.getStaticFieldValue(event.entityObject.class,'attachmentOptions')
 		for (attachmentProp in attachments) {
-			def attachmentOptions = event.entityObject.attachmentOptions?."${attachmentProp.name}"
-			def attachment = event.entityObject."${attachmentProp.name}"
+			def propertyAttachmentOptions = attachmentOptions?.get(attachmentProp.name)
+			Attachment attachment = (Attachment) ((GroovyObject)event.entityObject).getProperty(attachmentProp.name)
 			if (attachment) {
 				attachment.domainName = GrailsNameUtils.getPropertyName(event.entityObject.getClass())
 				attachment.propertyName = attachmentProp.name
-				attachment.options = attachmentOptions
+				attachment.options = propertyAttachmentOptions
 				attachment.parentEntity = event.entityObject
 			}
 		}
-	}
-
-	protected getDomainArtefact(String domainName) {
-		Holders.grailsApplication.getDomainClass(domainName)
 	}
 }

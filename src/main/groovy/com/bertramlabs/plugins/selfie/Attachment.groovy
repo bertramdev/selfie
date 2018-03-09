@@ -8,7 +8,7 @@ import com.bertramlabs.plugins.selfie.processors.ImageResizer
 import java.security.MessageDigest
 
 class Attachment {
-	static transients = ['originalFilename','propertyName','options','parentEntity','processors','domainName','fileStream','cloudFile','storageOptions','config','styles','inputStream','fileSize','contentType']
+	static transients = ['originalFilename','propertyName','options','parentEntity','processors','domainName','fileStream','cloudFile','storageOptions','config','styles','inputStream']
 	String fileName
 	String contentType
 	Long fileSize
@@ -28,6 +28,13 @@ class Attachment {
 		contentType nullable:true
 		fileName nullable:true
 		fileSize nullable:true
+	}
+	static getFilename(String filename) {
+		filename?.lastIndexOf('.') >= 0 ? filename.substring(0, filename.lastIndexOf('.')) : filename
+	}
+
+	static getExtension(String filename) {
+		filename?.lastIndexOf('.') >= 0 ? filename?.substring(filename?.lastIndexOf('.'), filename.length()) : ''
 	}
 
 	def url(String typeName, expiration=null) {
@@ -92,11 +99,11 @@ class Attachment {
 		return evaluatedOptions
 	}
 
-	public Integer getFileSize() {
+	public Long getFileSize() {
 		if(fileSize) {
 			return fileSize
 		}
-		if(cloudFile.exists()) {
+		if(cloudFile?.exists()) {
 			fileSize = cloudFile?.contentLength
 		}
 		return fileSize
@@ -190,19 +197,14 @@ class Attachment {
 
 	void setOriginalFilename(String name) {
 		originalFilename = name
-		fileName = fileName ?: originalFilename
+        fileName = fileName ?: originalFilename
 	}
 
 	String fileNameForType(typeName) {
-		def fileNameWithOutExt = fileName.replaceFirst(/[.][^.]+$/, "")
-		def extension 
-		try {
-			extension = (fileName =~ /[.]([^.]+)$/)[0][1]
-			"${fileNameWithOutExt}_${typeName}.${extension?.toLowerCase()}" //uppercase extensions prevent correct content type detection
-		} catch (IndexOutOfBoundsException e) {
-			//file has no extension
-			"${fileNameWithOutExt}_${typeName}"
-		}
+		def fileNameWithOutExt = getFilename(fileName)
+		def extension = getExtension(fileName)
+
+		"${fileNameWithOutExt}_${typeName}${extension}"
 	}
 
 	def getStyles() {
