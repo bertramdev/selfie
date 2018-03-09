@@ -2,7 +2,9 @@ package com.bertramlabs.plugins.selfie
 
 import grails.validation.AbstractConstraint
 import org.springframework.validation.Errors
+import groovy.transform.CompileStatic
 
+@CompileStatic
 class ContentTypeConstraint extends AbstractConstraint {
 
 	boolean supports(Class classObject) {
@@ -12,12 +14,13 @@ class ContentTypeConstraint extends AbstractConstraint {
 	String getName() { "contentType" }
 
 	protected void processValidate(target, propertyValue, Errors errors) {
-		def contentType = propertyValue?.contentType
+		Attachment attachment = (Attachment) propertyValue
+		String contentType = attachment?.contentType
 		if (constraintParameter instanceof List) {
-			if (!constraintParameter.contains(contentType)) {
+			if (!(constraintParameter as List<String>).contains(contentType)) {
 				rejectValue target, errors, "default.invalid.${name}.message", "${name}.invalid", [constraintPropertyName, constraintOwningClass, contentType] as Object[]
 			}
-		} else if (constraintParameter != contentType) {
+		} else if ((constraintParameter as String) != contentType) {
 			rejectValue target, errors, "default.invalid.${name}.message", "${name}.invalid", [constraintPropertyName, constraintOwningClass, contentType] as Object[]
 		}
 	}

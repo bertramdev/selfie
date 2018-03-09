@@ -113,7 +113,7 @@ class Attachment {
 		if(contentType) {
 			return contentType
 		}
-		if(cloudFile.exists()) {
+		if(cloudFile?.exists()) {
 			contentType = cloudFile?.contentType	
 		}
 		
