@@ -83,7 +83,11 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 				}
 			}
 			Attachment attachment = (Attachment) ((GroovyObject)gormEntity).getProperty(attachmentProp.name)
-			attachment?.save()
+			if(attachment) {
+				attachment.parentEntity = event.entityObject
+				attachment.save()
+			}
+			
 		}
 	}
 
