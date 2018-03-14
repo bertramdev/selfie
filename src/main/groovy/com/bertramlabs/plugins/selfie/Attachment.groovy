@@ -69,6 +69,10 @@ class Attachment {
 
 
 		if(!cloudFile.exists()) {
+			def originalCloudFile = getCloudFile('original')
+			if(!originalCloudFile.exists()) {
+				return null
+			}
 			for (processorClass in processors) {
 				processorClass.newInstance(attachment: this).process(styleHash,styleOptions)
 			}
