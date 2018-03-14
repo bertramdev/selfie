@@ -13,6 +13,7 @@ import org.grails.datastore.mapping.engine.event.EventType
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.PersistentProperty
 import org.springframework.context.ApplicationEvent
+import org.grails.datastore.gorm.GormEntity
 
 @CompileStatic
 class PersistenceEventListener extends AbstractPersistenceEventListener {
@@ -69,7 +70,7 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 		Class domainEntity = event.entityObject.class
 		Map<String,Map> attachmentOptions = (Map) GrailsClassUtils.getStaticFieldValue(domainEntity,'attachmentOptions')
 		for (attachmentProp in attachments) {
-			if(event.entityObject instanceof DirtyCheckable && ((DirtyCheckable)event.entityObject).hasChanged(attachmentProp.name)){
+			if(((GormEntity)event.entityObject).isDirty(attachmentProp.name)) {
 				def propertyAttachmentOptions = attachmentOptions?.get(attachmentProp.name)
 
 				Attachment originalAttachment = (Attachment) gormEntity.getPersistentValue(attachmentProp.name)
