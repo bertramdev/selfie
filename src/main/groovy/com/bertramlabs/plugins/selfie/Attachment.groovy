@@ -47,7 +47,7 @@ class Attachment {
 		}
 
 		if(!storageOptions.url) {
-			url = cloudFile.getURL(expiration).toString()
+			url = cloudFile?.getURL(expiration).toString()
 		} else {
 			url = evaluatedPath((storageOptions.url ?: '/'),typeName) + typeFileName
 		}
@@ -68,15 +68,15 @@ class Attachment {
 		def url
 
 
-		if(!cloudFile.exists()) {
+		if(!cloudFile?.exists()) {
 			def originalCloudFile = getCloudFile('original')
-			if(!originalCloudFile.exists()) {
+			if(!originalCloudFile?.exists()) {
 				return null
 			}
 			for (processorClass in processors) {
 				processorClass.newInstance(attachment: this).process(styleHash,styleOptions)
 			}
-			if(!cloudFile.exists()) {
+			if(!cloudFile?.exists()) {
 				return null
 			}
 		}
