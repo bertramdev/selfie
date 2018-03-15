@@ -23,11 +23,10 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 
 	protected void onPersistenceEvent(final AbstractPersistenceEvent event) {
 		if(!event.entityObject) return
-
-
+		
 		switch(event.eventType) {
+			case EventType.SaveOrUpdate:
 			case EventType.PostInsert:
-			case EventType.PreUpdate:
 				def attachments = attachmentsForEvent(event.entity)
 				if(attachments) {
 					preSave(event, attachments)
@@ -68,6 +67,9 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 		applyPropertyOptions(event,attachments)
 		GormEntity gormEntity = (GormEntity) event.entityObject
 		Class domainEntity = event.entityObject.class
+		if(!gormEntity.ident()) {
+			return
+		}
 		Map<String,Map> attachmentOptions = (Map) GrailsClassUtils.getStaticFieldValue(domainEntity,'attachmentOptions')
 		for (attachmentProp in attachments) {
 			if(((GormEntity)event.entityObject).isDirty(attachmentProp.name)) {
@@ -84,7 +86,6 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 			}
 			Attachment attachment = (Attachment) ((GroovyObject)gormEntity).getProperty(attachmentProp.name)
 			if(attachment) {
-				attachment.parentEntity = event.entityObject
 				attachment.save()
 			}
 			

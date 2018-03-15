@@ -151,13 +151,14 @@ class Attachment {
 	}
 
 	void save() {
-		def storageOptions = getStorageOptions(domainName,propertyName)
-		def bucket = storageOptions.bucket ?: '.'
-		def path = storageOptions.path ?: ''
-		def provider = StorageProvider.create(storageOptions.providerOptions.clone())
-
-		// First lets upload the original
 		if(fileStream && fileName) {
+			def storageOptions = getStorageOptions(domainName,propertyName)
+			def bucket = storageOptions.bucket ?: '.'
+			def path = storageOptions.path ?: ''
+			def provider = StorageProvider.create(storageOptions.providerOptions.clone())
+
+			// First lets upload the original
+		
 			def cloudFile = provider[bucket][ evaluatedPath(path,'original') + fileNameForType('original')]
 			cloudFile.contentType = contentType
 			if(fileSize) {
@@ -218,7 +219,7 @@ class Attachment {
 	}
 
 	protected String evaluatedPath(String input,type='original') {
-		def path = input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.getClass())}").replace(":id","${parentEntity.id}").replace(":type","${type}").replace(":style","${type}").replace(":propertyName","${propertyName}")
+		def path = input?.replace(":class","${GrailsNameUtils.getShortName(parentEntity.getClass())}").replace(":id","${parentEntity.ident()}").replace(":type","${type}").replace(":style","${type}").replace(":propertyName","${propertyName}")
 		options?.storage?.pathLowerCase ? path.toLowerCase() : path
 	}
 
