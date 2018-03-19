@@ -77,7 +77,7 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 				def propertyAttachmentOptions = attachmentOptions?.get(attachmentProp.name)
 
 				Attachment originalAttachment = (Attachment) gormEntity.getPersistentValue(attachmentProp.name)
-				if(originalAttachment && originalAttachment.getFilename() != attachment?.getFilename()) {
+				if(originalAttachment && originalAttachment.fileName != attachment?.fileName) {
 					originalAttachment.domainName = GrailsNameUtils.getPropertyName(event.entityObject.getClass())
 					originalAttachment.propertyName = attachmentProp.name
 					originalAttachment.options = propertyAttachmentOptions
