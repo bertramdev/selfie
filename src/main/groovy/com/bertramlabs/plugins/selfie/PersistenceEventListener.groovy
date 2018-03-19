@@ -72,11 +72,12 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 		}
 		Map<String,Map> attachmentOptions = (Map) GrailsClassUtils.getStaticFieldValue(domainEntity,'attachmentOptions')
 		for (attachmentProp in attachments) {
+			Attachment attachment = (Attachment) ((GroovyObject)gormEntity).getProperty(attachmentProp.name)
 			if(((GormEntity)event.entityObject).isDirty(attachmentProp.name)) {
 				def propertyAttachmentOptions = attachmentOptions?.get(attachmentProp.name)
 
 				Attachment originalAttachment = (Attachment) gormEntity.getPersistentValue(attachmentProp.name)
-				if(originalAttachment) {
+				if(originalAttachment && originalAttachment.getFilename() != attachment?.getFilename()) {
 					originalAttachment.domainName = GrailsNameUtils.getPropertyName(event.entityObject.getClass())
 					originalAttachment.propertyName = attachmentProp.name
 					originalAttachment.options = propertyAttachmentOptions
@@ -84,7 +85,7 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 					originalAttachment.delete()
 				}
 			}
-			Attachment attachment = (Attachment) ((GroovyObject)gormEntity).getProperty(attachmentProp.name)
+			
 			if(attachment) {
 				attachment.save()
 			}
