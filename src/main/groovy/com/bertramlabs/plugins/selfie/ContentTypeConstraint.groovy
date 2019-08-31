@@ -1,6 +1,6 @@
 package com.bertramlabs.plugins.selfie
 
-import grails.validation.AbstractConstraint
+import org.grails.datastore.gorm.validation.constraints.AbstractConstraint
 import org.springframework.validation.Errors
 import groovy.transform.CompileStatic
 
