@@ -1,7 +1,7 @@
 package com.bertramlabs.plugins.selfie
 
 import grails.plugins.*
-import grails.validation.ConstrainedProperty
+import grails.gorm.validation.ConstrainedProperty
 import org.grails.orm.hibernate.HibernateDatastore
 
 class SelfieGrailsPlugin extends Plugin {
