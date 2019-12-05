@@ -91,8 +91,8 @@ class Attachment {
 	}
 
 	def getOptions() {
-		def evaluatedOptions = options.clone()
-		if(evaluatedOptions.styles && evaluatedOptions.styles instanceof Closure) {
+		def evaluatedOptions = options?.clone()
+		if(evaluatedOptions?.styles && evaluatedOptions.styles instanceof Closure) {
 			evalutedOptions.styles = evaluatedOptions.styles.call(attachment)
 		}
 		evaluatedOptions?.styles?.each { style ->

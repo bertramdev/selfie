@@ -18,11 +18,14 @@ class ImageResizer {
 		if (!formatName) {
 			return
 		}
-		def styleOptions = attachment.options.styles
+		def styleOptions = attachment.options?.styles
 		def image = ImageIO.read(attachment.inputStream)
-		for (style in styleOptions) {
-			processStyle(style.key, [format: formatName] + style.value.clone(),image)
+		if(styleOptions) {
+			for (style in styleOptions) {
+				processStyle(style.key, [format: formatName] + style.value.clone(),image)
+			}	
 		}
+		
 	}
 
 	def process(typeName,styleOptions) {
