@@ -1,11 +1,16 @@
 package com.bertramlabs.plugins.selfie
 
-import grails.validation.AbstractConstraint
+import org.grails.datastore.gorm.validation.constraints.AbstractConstraint
+import org.springframework.context.MessageSource
 import org.springframework.validation.Errors
 import groovy.transform.CompileStatic
 
 @CompileStatic
 class FileSizeConstraint extends AbstractConstraint {
+
+	FileSizeConstraint(Class<?> constraintOwningClass, String constraintPropertyName, Object constraintParameter, MessageSource messageSource) {
+		super(constraintOwningClass, constraintPropertyName, constraintParameter, messageSource)
+	}
 
 	boolean supports(Class classObject) {
 		classObject == Attachment
@@ -35,5 +40,12 @@ class FileSizeConstraint extends AbstractConstraint {
 	}
 
 	protected boolean skipBlankValues() { true }
+
+	@Override
+	protected Object validateParameter(Object constraintParameter) {
+		println constraintParameter
+		return null
+	}
+
 	protected boolean skipNullValues() { true }
 }

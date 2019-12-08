@@ -1,7 +1,7 @@
 package com.bertramlabs.plugins.selfie
 
+import grails.gorm.validation.ConstrainedProperty
 import grails.plugins.*
-import grails.validation.ConstrainedProperty
 import org.grails.orm.hibernate.HibernateDatastore
 
 class SelfieGrailsPlugin extends Plugin {
@@ -29,11 +29,6 @@ class SelfieGrailsPlugin extends Plugin {
         }
     }
 
-    void doWithDynamicMethods() {
-        ConstrainedProperty.registerNewConstraint('contentType', ContentTypeConstraint)
-        ConstrainedProperty.registerNewConstraint('fileSize', FileSizeConstraint)
-    }
-
     void doWithApplicationContext() {
         HibernateDatastore datastore = applicationContext.getBean(HibernateDatastore)
         applicationContext.addApplicationListener(new PersistenceEventListener(datastore))
@@ -44,3 +39,5 @@ class SelfieGrailsPlugin extends Plugin {
     }
 
 }
+
+

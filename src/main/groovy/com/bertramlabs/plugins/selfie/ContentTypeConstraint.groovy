@@ -1,11 +1,22 @@
 package com.bertramlabs.plugins.selfie
 
-import grails.validation.AbstractConstraint
+import org.grails.datastore.gorm.validation.constraints.AbstractConstraint
+import org.springframework.context.MessageSource
 import org.springframework.validation.Errors
 import groovy.transform.CompileStatic
 
 @CompileStatic
 class ContentTypeConstraint extends AbstractConstraint {
+
+	ContentTypeConstraint(Class<?> constraintOwningClass, String constraintPropertyName, Object constraintParameter, MessageSource messageSource) {
+		super(constraintOwningClass, constraintPropertyName, constraintParameter, messageSource)
+	}
+
+	@Override
+	protected Object validateParameter(Object constraintParameter) {
+		println constraintParameter
+		return null
+	}
 
 	boolean supports(Class classObject) {
 		classObject == Attachment
