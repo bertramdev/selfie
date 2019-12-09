@@ -19,6 +19,7 @@ plugins {
 
 
 version "2.0.0"
+group = 'com.bertramlabs.plugins'
 
 apply plugin:"eclipse"
 apply plugin:"idea"
@@ -96,6 +97,7 @@ grailsPublish {
     user = bintrayUser
     key = bintrayKey
   }
+
   userOrg = 'bertramlabs'
     githubSlug = 'bertramdev/selfie'
     license {
