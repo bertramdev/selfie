@@ -3,7 +3,6 @@ package com.bertramlabs.plugins.selfie
 import grails.artefact.DomainClass
 import grails.persistence.Entity
 import grails.testing.gorm.DomainUnitTest
-import org.grails.datastore.gorm.events.DomainEventListener
 import org.springframework.mock.web.MockMultipartFile
 import spock.lang.Shared
 import spock.lang.Specification
@@ -33,12 +32,13 @@ class AttachmentSpec extends Specification implements DomainUnitTest<User> {
     }
 
     void setupSpec() {
-        applicationContext.addApplicationListener(new DomainEventListener(dataStore))
-        applicationContext.addApplicationListener(new PersistenceEventListener(dataStore))
+//        applicationContext.addApplicationListener(new DomainEventListener(datastore))
+        // FIXME PersistenceEventListener.onPersistenceEvent() is never fired in these tests
+        applicationContext.addApplicationListener(new PersistenceEventListener(datastore))
     }
 
     void cleanupSpec() {
-        //storage.deleteDir()
+        storage.deleteDir()
     }
 
     void "Converts a multipartfile to attachment"() {
@@ -54,12 +54,12 @@ class AttachmentSpec extends Specification implements DomainUnitTest<User> {
     void "Saves an attachment to local storage and removes it if null assigned"() {
         given:
             User user = new User()
-        user.getPersistentValue()
+            user.getPersistentValue()
             InputStream inputStream = this.class.classLoader.getResourceAsStream('image.jpg')
             Attachment attachment = new Attachment(contentType: 'image/jpeg',
                 originalFilename: 'image.jpeg', inputStream: inputStream)
             user.attachment = attachment
-            user.save(flush: true)
+            user.save(flush: true, failOnError: true)
             inputStream.close()
         expect:
             user.count() == 1

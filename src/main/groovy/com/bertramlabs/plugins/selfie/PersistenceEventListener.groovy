@@ -6,14 +6,12 @@ import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import org.grails.datastore.gorm.GormEntity
 import org.grails.datastore.mapping.core.Datastore
-import org.grails.datastore.mapping.dirty.checking.DirtyCheckable
 import org.grails.datastore.mapping.engine.event.AbstractPersistenceEvent
 import org.grails.datastore.mapping.engine.event.AbstractPersistenceEventListener
 import org.grails.datastore.mapping.engine.event.EventType
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.PersistentProperty
 import org.springframework.context.ApplicationEvent
-import org.grails.datastore.gorm.GormEntity
 
 @CompileStatic
 class PersistenceEventListener extends AbstractPersistenceEventListener {
@@ -21,9 +19,10 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 		super(datastore)
 	}
 
-	protected void onPersistenceEvent(final AbstractPersistenceEvent event) {
+	@Override
+	protected void onPersistenceEvent(AbstractPersistenceEvent event) {
 		if(!event.entityObject) return
-		
+
 		switch(event.eventType) {
 			case EventType.SaveOrUpdate:
 			case EventType.PostInsert:
@@ -47,8 +46,9 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 		}
 	}
 
+	@Override
 	boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
-		return true;
+		return true
 	}
 
 	void postLoad(final AbstractPersistenceEvent event, List<PersistentProperty> attachments) {
@@ -85,11 +85,10 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 					originalAttachment.delete()
 				}
 			}
-			
+
 			if(attachment) {
-				attachment.save()
+				attachment.saveAttachment()
 			}
-			
 		}
 	}
 
