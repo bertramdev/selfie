@@ -11,3 +11,4 @@
 /target-eclipse/
 build/
 .gradle/
+.idea/

@@ -1,8 +1,7 @@
 package com.bertramlabs.plugins.selfie
 
-
-import grails.test.mixin.integration.Integration
-import grails.transaction.*
+import grails.gorm.transactions.Rollback
+import grails.testing.mixin.integration.Integration
 import spock.lang.*
 
 @Integration
@@ -20,11 +19,9 @@ class PersistenceEventListenerSpec extends Specification {
     void "application context should contain the persistence event listener"() {
     	given:
     		def listeners = grailsApplication.mainContext.applicationListeners
-    		println listeners
    		when:
    			def persistenceListener = listeners.find { it instanceof PersistenceEventListener }
         then:
-        	true == true //temporary
-            // persistenceListener != null
+             persistenceListener != null
     }
 }
