@@ -1,5 +1,6 @@
 package com.bertramlabs.plugins.selfie
 
+import grails.gorm.annotation.Entity
 import grails.util.GrailsNameUtils
 import grails.util.Holders
 
@@ -7,6 +8,7 @@ import com.bertramlabs.plugins.karman.*
 import com.bertramlabs.plugins.selfie.processors.ImageResizer
 import java.security.MessageDigest
 
+@Entity
 class Attachment {
 	static transients = ['originalFilename','propertyName','options','parentEntity','processors','domainName','fileStream','cloudFile','storageOptions','config','styles','inputStream']
 	String fileName
@@ -150,7 +152,7 @@ class Attachment {
 		return provider[bucket][evaluatedPath(path,typeName) + typeFileName]
 	}
 
-	void save() {
+	void saveAttachment() {
 		if(fileStream && fileName) {
 			def storageOptions = getStorageOptions(domainName,propertyName)
 			def bucket = storageOptions.bucket ?: '.'

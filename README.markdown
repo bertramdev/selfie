@@ -16,7 +16,7 @@ Add The Following to your `build.gradle`:
 
 ```groovy
 dependencies {
-    compile 'com.bertramlabs.plugins:selfie:1.2.8'
+    compile 'com.bertramlabs.plugins:selfie:2.0.1'
 }
 ```
 
@@ -128,7 +128,7 @@ class Book {
   static mapping = { }
 
   static constraints = {
-    photo contentType: [‘png’,’jpg’], fileSize:1024*1024 // 1mb
+    photo contentType: ['png','jpg'], fileSize:1024*1024 // 1mb
   }
 }
 ```
