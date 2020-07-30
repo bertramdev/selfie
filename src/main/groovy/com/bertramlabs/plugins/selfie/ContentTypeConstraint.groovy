@@ -4,6 +4,7 @@ import org.grails.datastore.gorm.validation.constraints.AbstractConstraint
 import org.springframework.context.MessageSource
 import org.springframework.validation.Errors
 import groovy.transform.CompileStatic
+import org.springframework.util.Assert;
 
 @CompileStatic
 class ContentTypeConstraint extends AbstractConstraint {
@@ -14,8 +15,7 @@ class ContentTypeConstraint extends AbstractConstraint {
 
 	@Override
 	protected Object validateParameter(Object constraintParameter) {
-		println constraintParameter
-		return null
+		return constraintParameter
 	}
 
 	boolean supports(Class classObject) {
@@ -23,6 +23,12 @@ class ContentTypeConstraint extends AbstractConstraint {
 	}
 
 	String getName() { "contentType" }
+
+	protected void checkState() {
+        Assert.hasLength(constraintPropertyName, "Property 'propertyName' must be set on the constraint");
+        Assert.notNull(constraintOwningClass, "Property 'owningClass' must be set on the constraint");
+       
+    }
 
 	protected void processValidate(target, propertyValue, Errors errors) {
 		Attachment attachment = (Attachment) propertyValue
