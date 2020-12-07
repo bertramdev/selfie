@@ -2,7 +2,7 @@ package com.bertramlabs.plugins.selfie
 
 import grails.databinding.converters.ValueConverter
 import org.springframework.web.multipart.MultipartFile
-import com.bertramlabs.plugins.karman.util.MimeTypes
+import com.bertramlabs.plugins.karman.util.Mimetypes
 
 class AttachmentValueConverter implements ValueConverter {
 
@@ -20,7 +20,7 @@ class AttachmentValueConverter implements ValueConverter {
         }
 
         def originalFilename = value.originalFilename.replace('../','').replace('./','').replace('/','')
-        def contentType = MimeTypes.instance.getMimetype(originalFilename)
+        def contentType = Mimetypes.instance.getMimetype(originalFilename)
         new Attachment(contentType: contentType ?: value.contentType, originalFilename: originalFilename, fileSize: value.size, inputStream: value.inputStream)
     }
 

@@ -233,7 +233,7 @@ class Attachment {
 	}
 
 	protected getConfig() {
-		Holders.getConfig()?.grails?.plugin?.selfie
+		Holders.getConfig()?.getProperty('grails.plugin.selfie', Map, [:])
 	}
 
 	protected getStorageOptions(name, propertyName) {
