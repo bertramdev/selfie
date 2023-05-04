@@ -19,7 +19,7 @@ plugins {
 }
 
 
-version "2.1.4"
+version "2.1.5"
 group = 'com.bertramlabs.plugins'
 
 apply plugin:"eclipse"

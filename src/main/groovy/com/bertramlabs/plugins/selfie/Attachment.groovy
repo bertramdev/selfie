@@ -40,6 +40,9 @@ class Attachment {
 	}
 
 	def url(String typeName, expiration=null) {
+		if(contentType == 'image/svg+xml') {
+			typeName = 'original'
+		}
 		def storageOptions = getStorageOptions(domainName,propertyName)
 		def typeFileName = fileNameForType(typeName)
 		def cloudFile = getCloudFile(typeName)
