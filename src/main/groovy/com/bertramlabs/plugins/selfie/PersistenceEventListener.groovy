@@ -13,8 +13,13 @@ import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.PersistentProperty
 import org.springframework.context.ApplicationEvent
 
+import java.util.concurrent.ConcurrentHashMap
+
 @CompileStatic
 class PersistenceEventListener extends AbstractPersistenceEventListener {
+
+	private final Set<String> noAttachmentEntities = ConcurrentHashMap.newKeySet()
+
 	PersistenceEventListener(final Datastore datastore) {
 		super(datastore)
 	}
@@ -22,26 +27,24 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 	@Override
 	protected void onPersistenceEvent(AbstractPersistenceEvent event) {
 		if(!event.entityObject) return
+		if(noAttachmentEntities.contains(event.entityObject.getClass().name)) return
+
+		def attachments = attachmentsForEvent(event.entity)
+		if(!attachments) {
+			noAttachmentEntities.add(event.entityObject.getClass().name)
+			return
+		}
 
 		switch(event.eventType) {
 			case EventType.SaveOrUpdate:
 			case EventType.PostInsert:
-				def attachments = attachmentsForEvent(event.entity)
-				if(attachments) {
-					preSave(event, attachments)
-				}
+				preSave(event, attachments)
 			break
 			case EventType.PostDelete:
-				def attachments = attachmentsForEvent(event.entity)
-				if(attachments) {
-					postDelete(event,attachments)
-				}
+				postDelete(event, attachments)
 			break
 			case EventType.PostLoad:
-				def attachments = attachmentsForEvent(event.entity)
-				if(attachments) {
-					postLoad(event,attachments)
-				}
+				postLoad(event, attachments)
 			break
 		}
 	}
@@ -73,10 +76,12 @@ class PersistenceEventListener extends AbstractPersistenceEventListener {
 		Map<String,Map> attachmentOptions = (Map) GrailsClassUtils.getStaticFieldValue(domainEntity,'attachmentOptions')
 		for (attachmentProp in attachments) {
 			Attachment attachment = (Attachment) ((GroovyObject)gormEntity).getProperty(attachmentProp.name)
+			Attachment originalAttachment = (Attachment) gormEntity.getPersistentValue(attachmentProp.name)
+
+			if(attachment == null && originalAttachment == null) continue
+
 			if(((GormEntity)event.entityObject).isDirty(attachmentProp.name)) {
 				def propertyAttachmentOptions = attachmentOptions?.get(attachmentProp.name)
-
-				Attachment originalAttachment = (Attachment) gormEntity.getPersistentValue(attachmentProp.name)
 				if(originalAttachment && originalAttachment.fileName != attachment?.fileName) {
 					originalAttachment.domainName = GrailsNameUtils.getPropertyName(event.entityObject.getClass())
 					originalAttachment.propertyName = attachmentProp.name
